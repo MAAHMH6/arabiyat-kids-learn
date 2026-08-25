@@ -54,7 +54,7 @@ function LessonPlayer() {
         <div className="mt-5 grid gap-8 lg:grid-cols-[1.6fr_1fr]">
           <div>
             {lesson.free ? (
-              <VideoPlayer src={lesson.videoUrl} title={lesson.title} />
+              <VideoPlayer src={lesson.videoUrl ?? ""} title={lesson.title} />
             ) : (
               <div className="flex aspect-video items-center justify-center rounded-3xl border border-border bg-secondary/60 text-center">
                 <div className="px-8">

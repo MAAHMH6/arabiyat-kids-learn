@@ -97,24 +97,24 @@ function LoginPage() {
                 <div>
                   <Label htmlFor="parentName">Parent / guardian name</Label>
                   <Input id="parentName" name="parentName" className="mt-2 rounded-xl" placeholder="Your name" />
-                  {errors.parentName && <p className="mt-1 text-xs text-destructive">{errors.parentName}</p>}
+                  {errors['parentName'] && <p className="mt-1 text-xs text-destructive">{errors['parentName']}</p>}
                 </div>
                 <div>
                   <Label htmlFor="childName">Child's first name</Label>
                   <Input id="childName" name="childName" className="mt-2 rounded-xl" placeholder="First name only" />
-                  {errors.childName && <p className="mt-1 text-xs text-destructive">{errors.childName}</p>}
+                  {errors['childName'] && <p className="mt-1 text-xs text-destructive">{errors['childName']}</p>}
                 </div>
               </>
             )}
             <div>
               <Label htmlFor="email">Email</Label>
               <Input id="email" name="email" type="email" className="mt-2 rounded-xl" placeholder="you@example.com" />
-              {errors.email && <p className="mt-1 text-xs text-destructive">{errors.email}</p>}
+              {errors['email'] && <p className="mt-1 text-xs text-destructive">{errors['email']}</p>}
             </div>
             <div>
               <Label htmlFor="password">Password</Label>
               <Input id="password" name="password" type="password" className="mt-2 rounded-xl" placeholder="••••••••" />
-              {errors.password && <p className="mt-1 text-xs text-destructive">{errors.password}</p>}
+              {errors['password'] && <p className="mt-1 text-xs text-destructive">{errors['password']}</p>}
             </div>
             {mode === "login" && (
               <div className="flex items-center justify-between text-sm">

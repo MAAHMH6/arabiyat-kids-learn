@@ -103,12 +103,12 @@ function Checkout() {
             <div>
               <Label htmlFor="parentName">Parent / guardian name</Label>
               <Input id="parentName" name="parentName" className="mt-2 rounded-xl" placeholder="Your name" />
-              {errors.parentName && <p className="mt-1 text-xs text-destructive">{errors.parentName}</p>}
+              {errors['parentName'] && <p className="mt-1 text-xs text-destructive">{errors['parentName']}</p>}
             </div>
             <div>
               <Label htmlFor="email">Email</Label>
               <Input id="email" name="email" type="email" className="mt-2 rounded-xl" placeholder="you@example.com" />
-              {errors.email && <p className="mt-1 text-xs text-destructive">{errors.email}</p>}
+              {errors['email'] && <p className="mt-1 text-xs text-destructive">{errors['email']}</p>}
             </div>
             <div className="rounded-2xl border border-dashed border-border bg-secondary/50 p-5 text-sm text-muted-foreground">
               <p className="flex items-center gap-2 font-medium text-primary">

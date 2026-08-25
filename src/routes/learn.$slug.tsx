@@ -28,7 +28,7 @@ export const Route = createFileRoute("/learn/$slug")({
       ],
     };
   },
-  component: LessonPlayer;
+  component: LessonPlayer,
 });
 
 function LessonPlayer() {

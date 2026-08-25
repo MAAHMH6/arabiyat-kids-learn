@@ -33,6 +33,7 @@ const signupSchema = loginSchema.extend({
 
 function LoginPage() {
   const [mode, setMode] = useState<"login" | "signup">("login");
+  const [role, setRole] = useState<"student" | "parent" | "admin">("student");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const navigate = useNavigate();
 
@@ -53,10 +54,10 @@ function LoginPage() {
       return;
     }
     setErrors({});
-    toast.success("Accounts are almost ready", {
-      description: "Secure parent accounts will be activated when the backend is connected. Showing the demo dashboard.",
+    toast.success("Signed in", {
+      description: "Secure accounts activate when the backend is connected. Showing the demo dashboard.",
     });
-    void navigate({ to: "/dashboard" });
+    void navigate({ to: role === "admin" ? "/admin" : role === "parent" ? "/parent" : "/dashboard" });
   };
 
   return (
@@ -90,6 +91,22 @@ function LoginPage() {
           <p className="mt-2 text-sm text-muted-foreground">
             Accounts belong to parents and guardians. We only ask for a child's first name so lessons feel personal.
           </p>
+
+          <div className="mt-5 grid grid-cols-3 gap-1 rounded-2xl bg-secondary p-1">
+            {(["student", "parent", "admin"] as const).map((r) => (
+              <button
+                key={r}
+                type="button"
+                onClick={() => setRole(r)}
+                className={cn(
+                  "rounded-xl py-2 text-xs font-semibold capitalize transition-colors",
+                  role === r ? "bg-card text-primary shadow-soft" : "text-muted-foreground",
+                )}
+              >
+                {r}
+              </button>
+            ))}
+          </div>
 
           <form className="mt-6 space-y-4" onSubmit={submit}>
             {mode === "signup" && (

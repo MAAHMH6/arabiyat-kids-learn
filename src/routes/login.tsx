@@ -33,6 +33,7 @@ const signupSchema = loginSchema.extend({
 
 function LoginPage() {
   const [mode, setMode] = useState<"login" | "signup">("login");
+  const [role, setRole] = useState<"student" | "parent" | "admin">("student");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const navigate = useNavigate();
 
@@ -53,10 +54,10 @@ function LoginPage() {
       return;
     }
     setErrors({});
-    toast.success("Accounts are almost ready", {
-      description: "Secure parent accounts will be activated when the backend is connected. Showing the demo dashboard.",
+    toast.success("Signed in", {
+      description: "Secure accounts activate when the backend is connected. Showing the demo dashboard.",
     });
-    void navigate({ to: "/dashboard" });
+    void navigate({ to: role === "admin" ? "/admin" : role === "parent" ? "/parent" : "/dashboard" });
   };
 
   return (
@@ -91,30 +92,46 @@ function LoginPage() {
             Accounts belong to parents and guardians. We only ask for a child's first name so lessons feel personal.
           </p>
 
+          <div className="mt-5 grid grid-cols-3 gap-1 rounded-2xl bg-secondary p-1">
+            {(["student", "parent", "admin"] as const).map((r) => (
+              <button
+                key={r}
+                type="button"
+                onClick={() => setRole(r)}
+                className={cn(
+                  "rounded-xl py-2 text-xs font-semibold capitalize transition-colors",
+                  role === r ? "bg-card text-primary shadow-soft" : "text-muted-foreground",
+                )}
+              >
+                {r}
+              </button>
+            ))}
+          </div>
+
           <form className="mt-6 space-y-4" onSubmit={submit}>
             {mode === "signup" && (
               <>
                 <div>
                   <Label htmlFor="parentName">Parent / guardian name</Label>
                   <Input id="parentName" name="parentName" className="mt-2 rounded-xl" placeholder="Your name" />
-                  {errors.parentName && <p className="mt-1 text-xs text-destructive">{errors.parentName}</p>}
+                  {errors['parentName'] && <p className="mt-1 text-xs text-destructive">{errors['parentName']}</p>}
                 </div>
                 <div>
                   <Label htmlFor="childName">Child's first name</Label>
                   <Input id="childName" name="childName" className="mt-2 rounded-xl" placeholder="First name only" />
-                  {errors.childName && <p className="mt-1 text-xs text-destructive">{errors.childName}</p>}
+                  {errors['childName'] && <p className="mt-1 text-xs text-destructive">{errors['childName']}</p>}
                 </div>
               </>
             )}
             <div>
               <Label htmlFor="email">Email</Label>
               <Input id="email" name="email" type="email" className="mt-2 rounded-xl" placeholder="you@example.com" />
-              {errors.email && <p className="mt-1 text-xs text-destructive">{errors.email}</p>}
+              {errors['email'] && <p className="mt-1 text-xs text-destructive">{errors['email']}</p>}
             </div>
             <div>
               <Label htmlFor="password">Password</Label>
               <Input id="password" name="password" type="password" className="mt-2 rounded-xl" placeholder="••••••••" />
-              {errors.password && <p className="mt-1 text-xs text-destructive">{errors.password}</p>}
+              {errors['password'] && <p className="mt-1 text-xs text-destructive">{errors['password']}</p>}
             </div>
             {mode === "login" && (
               <div className="flex items-center justify-between text-sm">

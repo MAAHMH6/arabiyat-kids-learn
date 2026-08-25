@@ -72,17 +72,17 @@ function Contact() {
             <div>
               <Label htmlFor="name">Your name</Label>
               <Input id="name" name="name" className="mt-2 rounded-xl" placeholder="Parent or guardian name" />
-              {errors.name && <p className="mt-1 text-xs text-destructive">{errors.name}</p>}
+              {errors['name'] && <p className="mt-1 text-xs text-destructive">{errors['name']}</p>}
             </div>
             <div>
               <Label htmlFor="email">Email</Label>
               <Input id="email" name="email" type="email" className="mt-2 rounded-xl" placeholder="you@example.com" />
-              {errors.email && <p className="mt-1 text-xs text-destructive">{errors.email}</p>}
+              {errors['email'] && <p className="mt-1 text-xs text-destructive">{errors['email']}</p>}
             </div>
             <div>
               <Label htmlFor="message">Message</Label>
               <Textarea id="message" name="message" rows={5} className="mt-2 rounded-xl" placeholder="How can we help?" />
-              {errors.message && <p className="mt-1 text-xs text-destructive">{errors.message}</p>}
+              {errors['message'] && <p className="mt-1 text-xs text-destructive">{errors['message']}</p>}
             </div>
             <Button type="submit" size="lg" className="w-full rounded-xl bg-primary hover:bg-emerald">
               Send Message

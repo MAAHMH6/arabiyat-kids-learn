@@ -11,12 +11,20 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as ParentRouteImport } from './routes/parent'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResourcesRouteImport } from './routes/resources'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as CheckoutSlugRouteImport } from './routes/checkout.$slug'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as CoursesSlugRouteImport } from './routes/courses.$slug'
+import { Route as LearnSlugRouteImport } from './routes/learn.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,9 +36,19 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FaqRoute = FaqRouteImport.update({
@@ -43,9 +61,34 @@ const HowItWorksRoute = HowItWorksRouteImport.update({
   path: '/how-it-works',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParentRoute = ParentRouteImport.update({
+  id: '/parent',
+  path: '/parent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResourcesRoute = ResourcesRouteImport.update({
   id: '/resources',
   path: '/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutSlugRoute = CheckoutSlugRouteImport.update({
+  id: '/checkout/$slug',
+  path: '/checkout/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoursesIndexRoute = CoursesIndexRouteImport.update({
@@ -58,36 +101,65 @@ const CoursesSlugRoute = CoursesSlugRouteImport.update({
   path: '/courses/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LearnSlugRoute = LearnSlugRouteImport.update({
+  id: '/learn/$slug',
+  path: '/learn/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
+  '/dashboard': typeof DashboardRoute
   '/faq': typeof FaqRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/login': typeof LoginRoute
+  '/parent': typeof ParentRoute
+  '/privacy': typeof PrivacyRoute
   '/resources': typeof ResourcesRoute
+  '/terms': typeof TermsRoute
+  '/checkout/$slug': typeof CheckoutSlugRoute
   '/courses/$slug': typeof CoursesSlugRoute
+  '/learn/$slug': typeof LearnSlugRoute
   '/courses/': typeof CoursesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
+  '/dashboard': typeof DashboardRoute
   '/faq': typeof FaqRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/login': typeof LoginRoute
+  '/parent': typeof ParentRoute
+  '/privacy': typeof PrivacyRoute
   '/resources': typeof ResourcesRoute
+  '/terms': typeof TermsRoute
+  '/checkout/$slug': typeof CheckoutSlugRoute
   '/courses/$slug': typeof CoursesSlugRoute
+  '/learn/$slug': typeof LearnSlugRoute
   '/courses': typeof CoursesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
+  '/dashboard': typeof DashboardRoute
   '/faq': typeof FaqRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/login': typeof LoginRoute
+  '/parent': typeof ParentRoute
+  '/privacy': typeof PrivacyRoute
   '/resources': typeof ResourcesRoute
+  '/terms': typeof TermsRoute
+  '/checkout/$slug': typeof CheckoutSlugRoute
   '/courses/$slug': typeof CoursesSlugRoute
+  '/learn/$slug': typeof LearnSlugRoute
   '/courses/': typeof CoursesIndexRoute
 }
 export interface FileRouteTypes {
@@ -95,42 +167,74 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/admin'
     | '/contact'
+    | '/dashboard'
     | '/faq'
     | '/how-it-works'
+    | '/login'
+    | '/parent'
+    | '/privacy'
     | '/resources'
+    | '/terms'
+    | '/checkout/$slug'
     | '/courses/$slug'
+    | '/learn/$slug'
     | '/courses/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
+    | '/admin'
     | '/contact'
+    | '/dashboard'
     | '/faq'
     | '/how-it-works'
+    | '/login'
+    | '/parent'
+    | '/privacy'
     | '/resources'
+    | '/terms'
+    | '/checkout/$slug'
     | '/courses/$slug'
+    | '/learn/$slug'
     | '/courses'
   id:
     | '__root__'
     | '/'
     | '/about'
+    | '/admin'
     | '/contact'
+    | '/dashboard'
     | '/faq'
     | '/how-it-works'
+    | '/login'
+    | '/parent'
+    | '/privacy'
     | '/resources'
+    | '/terms'
+    | '/checkout/$slug'
     | '/courses/$slug'
+    | '/learn/$slug'
     | '/courses/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AdminRoute: typeof AdminRoute
   ContactRoute: typeof ContactRoute
+  DashboardRoute: typeof DashboardRoute
   FaqRoute: typeof FaqRoute
   HowItWorksRoute: typeof HowItWorksRoute
+  LoginRoute: typeof LoginRoute
+  ParentRoute: typeof ParentRoute
+  PrivacyRoute: typeof PrivacyRoute
   ResourcesRoute: typeof ResourcesRoute
+  TermsRoute: typeof TermsRoute
+  CheckoutSlugRoute: typeof CheckoutSlugRoute
   CoursesSlugRoute: typeof CoursesSlugRoute
+  LearnSlugRoute: typeof LearnSlugRoute
   CoursesIndexRoute: typeof CoursesIndexRoute
 }
 
@@ -150,11 +254,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/faq': {
@@ -171,11 +289,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HowItWorksRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parent': {
+      id: '/parent'
+      path: '/parent'
+      fullPath: '/parent'
+      preLoaderRoute: typeof ParentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/resources': {
       id: '/resources'
       path: '/resources'
       fullPath: '/resources'
       preLoaderRoute: typeof ResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout/$slug': {
+      id: '/checkout/$slug'
+      path: '/checkout/$slug'
+      fullPath: '/checkout/$slug'
+      preLoaderRoute: typeof CheckoutSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/courses/': {
@@ -192,17 +345,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/learn/$slug': {
+      id: '/learn/$slug'
+      path: '/learn/$slug'
+      fullPath: '/learn/$slug'
+      preLoaderRoute: typeof LearnSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AdminRoute: AdminRoute,
   ContactRoute: ContactRoute,
+  DashboardRoute: DashboardRoute,
   FaqRoute: FaqRoute,
   HowItWorksRoute: HowItWorksRoute,
+  LoginRoute: LoginRoute,
+  ParentRoute: ParentRoute,
+  PrivacyRoute: PrivacyRoute,
   ResourcesRoute: ResourcesRoute,
+  TermsRoute: TermsRoute,
+  CheckoutSlugRoute: CheckoutSlugRoute,
   CoursesSlugRoute: CoursesSlugRoute,
+  LearnSlugRoute: LearnSlugRoute,
   CoursesIndexRoute: CoursesIndexRoute,
 }
 export const routeTree = rootRouteImport

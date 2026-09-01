@@ -1,12 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import logo from "@/assets/arabiyat-logo.png.asset.json";
+import logo from "@/assets/arabiyat-logo.png";
 import { cn } from "@/lib/utils";
 
 export function Logo({ className, compact = false }: { className?: string; compact?: boolean }) {
   return (
     <Link to="/" className={cn("flex items-center gap-3", className)}>
       <img
-        src={logo.url}
+        src={logo}
         alt="Arabiyat Learn logo"
         width={56}
         height={56}

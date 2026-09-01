@@ -16,7 +16,7 @@ export const Route = createFileRoute("/learn/$slug")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Lesson — Arabiyat Learning" }, { name: "robots", content: "noindex" }] };
+      return { meta: [{ title: "Lesson — Arabiyat Learn" }, { name: "robots", content: "noindex" }] };
     }
     return {
       meta: [

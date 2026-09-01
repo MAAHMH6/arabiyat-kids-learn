@@ -16,11 +16,11 @@ export const Route = createFileRoute("/checkout/$slug")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Checkout — Arabiyat Learning" }, { name: "robots", content: "noindex" }] };
+      return { meta: [{ title: "Checkout — Arabiyat Learn" }, { name: "robots", content: "noindex" }] };
     }
     return {
       meta: [
-        { title: `Enroll in ${loaderData.course.title} — Arabiyat Learning` },
+        { title: `Enroll in ${loaderData.course.title} — Arabiyat Learn` },
         { name: "description", content: `Secure enrollment for ${loaderData.course.title}.` },
         { name: "robots", content: "noindex" },
         { property: "og:title", content: `Enroll in ${loaderData.course.title}` },

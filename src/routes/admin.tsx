@@ -7,10 +7,10 @@ import { courses, resources } from "@/lib/site-data";
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
-      { title: "Admin Panel — Arabiyat Learning" },
+      { title: "Admin Panel — Arabiyat Learn" },
       { name: "description", content: "Manage Arabic courses, lessons, students and free resources." },
       { name: "robots", content: "noindex" },
-      { property: "og:title", content: "Admin Panel — Arabiyat Learning" },
+      { property: "og:title", content: "Admin Panel — Arabiyat Learn" },
       { property: "og:description", content: "Teacher tools for courses, students and resources." },
     ],
   }),

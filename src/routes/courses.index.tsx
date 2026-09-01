@@ -8,13 +8,13 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/courses/")({
   head: () => ({
     meta: [
-      { title: "Arabic Courses for Kids — Arabiyat Learning" },
+      { title: "Arabic Courses for Kids — Arabiyat Learn" },
       {
         name: "description",
         content:
           "Browse recorded Arabic courses for children: alphabet, numbers, vocabulary, speaking and beginner conversations.",
       },
-      { property: "og:title", content: "Arabic Courses for Kids — Arabiyat Learning" },
+      { property: "og:title", content: "Arabic Courses for Kids — Arabiyat Learn" },
       { property: "og:description", content: "Recorded Arabic courses for English-speaking children." },
     ],
   }),

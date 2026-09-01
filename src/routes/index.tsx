@@ -25,13 +25,13 @@ import heroImage from "@/assets/hero-classroom.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Arabiyat Learning — Arabic Made Simple for Kids" },
+      { title: "Arabiyat Learn — Arabic Made Simple for Kids" },
       {
         name: "description",
         content:
           "Fun, practical recorded Arabic courses for English-speaking children. Letters, numbers, vocabulary, pronunciation and speaking, taught step by step.",
       },
-      { property: "og:title", content: "Arabiyat Learning — Arabic Made Simple for Kids" },
+      { property: "og:title", content: "Arabiyat Learn — Arabic Made Simple for Kids" },
       {
         property: "og:description",
         content: "Recorded Arabic lessons for English-speaking children. Learn • Speak • Grow.",
@@ -53,7 +53,7 @@ function Home() {
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-14 lg:grid-cols-2 lg:py-20">
           <div className="animate-fade-up">
             <span className="inline-block rounded-full bg-pink-soft px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.15em] text-primary">
-              Welcome to Arabiyat Learning
+              Welcome to Arabiyat Learn
             </span>
             <h1 className="mt-6 font-display text-4xl font-bold leading-[1.1] text-primary md:text-6xl">
               Arabic Made <br className="hidden md:block" />

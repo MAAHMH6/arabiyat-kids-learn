@@ -7,12 +7,12 @@ import { faqs } from "@/lib/site-data";
 export const Route = createFileRoute("/faq")({
   head: () => ({
     meta: [
-      { title: "FAQ — Arabiyat Learning" },
+      { title: "FAQ — Arabiyat Learn" },
       {
         name: "description",
         content: "Answers about ages, levels, recorded lessons, replays, English support and parent progress tracking.",
       },
-      { property: "og:title", content: "FAQ — Arabiyat Learning" },
+      { property: "og:title", content: "FAQ — Arabiyat Learn" },
       { property: "og:description", content: "Common questions from parents about our Arabic courses for kids." },
     ],
   }),

@@ -12,9 +12,9 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "Student Login — Arabiyat Learning" },
-      { name: "description", content: "Parent and guardian login for Arabiyat Learning Arabic courses." },
-      { property: "og:title", content: "Student Login — Arabiyat Learning" },
+      { title: "Student Login — Arabiyat Learn" },
+      { name: "description", content: "Parent and guardian login for Arabiyat Learn Arabic courses." },
+      { property: "og:title", content: "Student Login — Arabiyat Learn" },
       { property: "og:description", content: "Sign in to continue your child's Arabic lessons." },
     ],
   }),
@@ -156,7 +156,7 @@ function LoginPage() {
 
           <p className="mt-6 text-center text-xs text-muted-foreground">
             <Link to="/" className="hover:text-primary">
-              ← Back to Arabiyat Learning
+              ← Back to Arabiyat Learn
             </Link>
           </p>
         </div>

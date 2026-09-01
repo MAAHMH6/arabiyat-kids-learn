@@ -10,12 +10,12 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/resources")({
   head: () => ({
     meta: [
-      { title: "Free Arabic Resources for Kids — Arabiyat Learning" },
+      { title: "Free Arabic Resources for Kids — Arabiyat Learn" },
       {
         name: "description",
         content: "Free printable Arabic worksheets, flashcards, vocabulary lists and practice activities for children.",
       },
-      { property: "og:title", content: "Free Arabic Resources for Kids — Arabiyat Learning" },
+      { property: "og:title", content: "Free Arabic Resources for Kids — Arabiyat Learn" },
       { property: "og:description", content: "Printable worksheets, flashcards and practice activities." },
     ],
   }),

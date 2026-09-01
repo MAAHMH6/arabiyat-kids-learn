@@ -6,12 +6,12 @@ import { howItWorks, parentReasons } from "@/lib/site-data";
 export const Route = createFileRoute("/how-it-works")({
   head: () => ({
     meta: [
-      { title: "How It Works — Arabiyat Learning" },
+      { title: "How It Works — Arabiyat Learn" },
       {
         name: "description",
         content: "Choose a course, enroll securely, watch recorded Arabic lessons and learn at your own pace.",
       },
-      { property: "og:title", content: "How It Works — Arabiyat Learning" },
+      { property: "og:title", content: "How It Works — Arabiyat Learn" },
       { property: "og:description", content: "Four simple steps to start your child's Arabic journey." },
     ],
   }),

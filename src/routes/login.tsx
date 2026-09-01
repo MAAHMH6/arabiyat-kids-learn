@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -6,15 +6,16 @@ import { Logo } from "@/components/site/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "Student Login — Arabiyat Learn" },
+      { title: "Parent Login — Arabiyat Learn" },
       { name: "description", content: "Parent and guardian login for Arabiyat Learn Arabic courses." },
-      { property: "og:title", content: "Student Login — Arabiyat Learn" },
+      { property: "og:title", content: "Parent Login — Arabiyat Learn" },
       { property: "og:description", content: "Sign in to continue your child's Arabic lessons." },
     ],
   }),
@@ -33,11 +34,16 @@ const signupSchema = loginSchema.extend({
 
 function LoginPage() {
   const [mode, setMode] = useState<"login" | "signup">("login");
-  const [role, setRole] = useState<"student" | "parent" | "admin">("student");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [busy, setBusy] = useState(false);
   const navigate = useNavigate();
+  const { user, isAdmin, loading } = useAuth();
 
-  const submit = (e: React.FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    if (!loading && user) void navigate({ to: isAdmin ? "/admin" : "/dashboard" });
+  }, [user, isAdmin, loading, navigate]);
+
+  const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     const values = {
@@ -54,10 +60,36 @@ function LoginPage() {
       return;
     }
     setErrors({});
-    toast.success("Signed in", {
-      description: "Secure accounts activate when the backend is connected. Showing the demo dashboard.",
-    });
-    void navigate({ to: role === "admin" ? "/admin" : role === "parent" ? "/parent" : "/dashboard" });
+    setBusy(true);
+    try {
+      if (mode === "login") {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: values.email,
+          password: values.password,
+        });
+        if (error) throw error;
+        toast.success("Welcome back");
+      } else {
+        const { data, error } = await supabase.auth.signUp({
+          email: values.email,
+          password: values.password,
+          options: {
+            emailRedirectTo: window.location.origin,
+            data: { parent_name: values.parentName, child_name: values.childName },
+          },
+        });
+        if (error) throw error;
+        if (!data.session) {
+          toast.success("Check your email", { description: "Confirm your address to activate the account." });
+          return;
+        }
+        toast.success("Account created");
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -92,22 +124,6 @@ function LoginPage() {
             Accounts belong to parents and guardians. We only ask for a child's first name so lessons feel personal.
           </p>
 
-          <div className="mt-5 grid grid-cols-3 gap-1 rounded-2xl bg-secondary p-1">
-            {(["student", "parent", "admin"] as const).map((r) => (
-              <button
-                key={r}
-                type="button"
-                onClick={() => setRole(r)}
-                className={cn(
-                  "rounded-xl py-2 text-xs font-semibold capitalize transition-colors",
-                  role === r ? "bg-card text-primary shadow-soft" : "text-muted-foreground",
-                )}
-              >
-                {r}
-              </button>
-            ))}
-          </div>
-
           <form className="mt-6 space-y-4" onSubmit={submit}>
             {mode === "signup" && (
               <>
@@ -118,7 +134,7 @@ function LoginPage() {
                 </div>
                 <div>
                   <Label htmlFor="childName">Child's first name</Label>
-                  <Input id="childName" name="childName" className="mt-2 rounded-xl" placeholder="First name only" />
+                  <Input id="childName" name="childName" className="mt-2 rounded-xl" placeholder="Child's name" />
                   {errors['childName'] && <p className="mt-1 text-xs text-destructive">{errors['childName']}</p>}
                 </div>
               </>
@@ -133,30 +149,14 @@ function LoginPage() {
               <Input id="password" name="password" type="password" className="mt-2 rounded-xl" placeholder="••••••••" />
               {errors['password'] && <p className="mt-1 text-xs text-destructive">{errors['password']}</p>}
             </div>
-            {mode === "login" && (
-              <div className="flex items-center justify-between text-sm">
-                <label className="flex items-center gap-2 text-muted-foreground">
-                  <Checkbox id="remember" /> Remember me
-                </label>
-                <button
-                  type="button"
-                  className="font-medium text-pink hover:underline"
-                  onClick={() =>
-                    toast("Password reset", { description: "Email reset links activate with the backend connection." })
-                  }
-                >
-                  Forgot password?
-                </button>
-              </div>
-            )}
-            <Button type="submit" size="lg" className="w-full rounded-xl bg-primary hover:bg-emerald">
-              {mode === "login" ? "Login" : "Create account"}
+            <Button type="submit" disabled={busy} className="w-full rounded-xl bg-primary hover:bg-emerald">
+              {busy ? "Please wait…" : mode === "login" ? "Sign in" : "Create account"}
             </Button>
           </form>
 
           <p className="mt-6 text-center text-xs text-muted-foreground">
             <Link to="/" className="hover:text-primary">
-              ← Back to Arabiyat Learn
+              ← Back to the website
             </Link>
           </p>
         </div>

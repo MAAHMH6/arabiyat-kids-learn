@@ -7,10 +7,10 @@ import { courses } from "@/lib/site-data";
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
-      { title: "Student Dashboard — Arabiyat Learning" },
+      { title: "Student Dashboard — Arabiyat Learn" },
       { name: "description", content: "Continue your Arabic lessons, track progress and practise new words." },
       { name: "robots", content: "noindex" },
-      { property: "og:title", content: "Student Dashboard — Arabiyat Learning" },
+      { property: "og:title", content: "Student Dashboard — Arabiyat Learn" },
       { property: "og:description", content: "Continue lessons and track Arabic learning progress." },
     ],
   }),

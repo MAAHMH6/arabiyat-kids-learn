@@ -7,13 +7,13 @@ import teacher from "@/assets/teacher-portrait.jpg";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "Meet Your Arabic Teacher — Arabiyat Learning" },
+      { title: "Meet Your Arabic Teacher — Arabiyat Learn" },
       {
         name: "description",
         content:
-          "Meet the teacher behind Arabiyat Learning and the simple, step-by-step approach used to teach Arabic to English-speaking children.",
+          "Meet the teacher behind Arabiyat Learn and the simple, step-by-step approach used to teach Arabic to English-speaking children.",
       },
-      { property: "og:title", content: "Meet Your Arabic Teacher — Arabiyat Learning" },
+      { property: "og:title", content: "Meet Your Arabic Teacher — Arabiyat Learn" },
       { property: "og:description", content: "A patient, experienced Arabic teacher for children." },
     ],
   }),
@@ -31,9 +31,9 @@ function About() {
   return (
     <SiteLayout>
       <PageHeader
-        eyebrow="About Arabiyat Learning"
+        eyebrow="About Arabiyat Learn"
         title="Meet Your Arabic Teacher"
-        subtitle="Arabiyat Learning was created with one simple goal: to make learning Arabic easy, enjoyable and meaningful for English-speaking children."
+        subtitle="Arabiyat Learn was created with one simple goal: to make learning Arabic easy, enjoyable and meaningful for English-speaking children."
       />
       <section className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 lg:grid-cols-2">
         <img

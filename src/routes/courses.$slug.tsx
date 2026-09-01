@@ -18,14 +18,14 @@ export const Route = createFileRoute("/courses/$slug")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Course not found — Arabiyat Learning" }, { name: "robots", content: "noindex" }] };
+      return { meta: [{ title: "Course not found — Arabiyat Learn" }, { name: "robots", content: "noindex" }] };
     }
     const { course } = loaderData;
     return {
       meta: [
-        { title: `${course.title} — Arabiyat Learning` },
+        { title: `${course.title} — Arabiyat Learn` },
         { name: "description", content: course.description },
-        { property: "og:title", content: `${course.title} — Arabiyat Learning` },
+        { property: "og:title", content: `${course.title} — Arabiyat Learn` },
         { property: "og:description", content: course.description },
       ],
     };

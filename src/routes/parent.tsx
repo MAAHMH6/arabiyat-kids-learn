@@ -5,10 +5,10 @@ import { courses } from "@/lib/site-data";
 export const Route = createFileRoute("/parent")({
   head: () => ({
     meta: [
-      { title: "Parent Dashboard — Arabiyat Learning" },
+      { title: "Parent Dashboard — Arabiyat Learn" },
       { name: "description", content: "Follow your child's Arabic progress, enrolments and payment history." },
       { name: "robots", content: "noindex" },
-      { property: "og:title", content: "Parent Dashboard — Arabiyat Learning" },
+      { property: "og:title", content: "Parent Dashboard — Arabiyat Learn" },
       { property: "og:description", content: "Track enrolments, lesson progress and receipts in one place." },
     ],
   }),

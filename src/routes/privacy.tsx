@@ -4,9 +4,9 @@ import { SiteLayout, PageHeader } from "@/components/site/SiteLayout";
 export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
-      { title: "Privacy Policy — Arabiyat Learning" },
-      { name: "description", content: "How Arabiyat Learning protects family and children's privacy." },
-      { property: "og:title", content: "Privacy Policy — Arabiyat Learning" },
+      { title: "Privacy Policy — Arabiyat Learn" },
+      { name: "description", content: "How Arabiyat Learn protects family and children's privacy." },
+      { property: "og:title", content: "Privacy Policy — Arabiyat Learn" },
       { property: "og:description", content: "Our privacy commitments to parents and children." },
     ],
   }),

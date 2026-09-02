@@ -1,4 +1,5 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { Check, Clock, Globe, Lock, PlayCircle, Star, BadgeCheck } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
@@ -8,33 +9,49 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { getCourse } from "@/lib/site-data";
+import { fetchCourseBySlug, thumbFor } from "@/lib/db";
 
 export const Route = createFileRoute("/courses/$slug")({
-  loader: ({ params }) => {
-    const course = getCourse(params.slug);
-    if (!course) throw notFound();
-    return { course };
-  },
-  head: ({ loaderData }) => {
-    if (!loaderData) {
-      return { meta: [{ title: "Course not found — Arabiyat Learn" }, { name: "robots", content: "noindex" }] };
-    }
-    const { course } = loaderData;
-    return {
-      meta: [
-        { title: `${course.title} — Arabiyat Learn` },
-        { name: "description", content: course.description },
-        { property: "og:title", content: `${course.title} — Arabiyat Learn` },
-        { property: "og:description", content: course.description },
-      ],
-    };
-  },
+  head: ({ params }) => ({
+    meta: [
+      { title: `Arabic Course — Arabiyat Learn` },
+      { name: "description", content: `Recorded Arabic lessons for children: ${params.slug.replace(/-/g, " ")}.` },
+      { property: "og:title", content: `Arabic Course — Arabiyat Learn` },
+      { property: "og:description", content: "Recorded Arabic courses for English-speaking children." },
+    ],
+  }),
   component: CourseDetail,
 });
 
 function CourseDetail() {
-  const { course } = Route.useLoaderData();
+  const { slug } = Route.useParams();
+  const { data: course, isLoading } = useQuery({
+    queryKey: ["course", slug],
+    queryFn: () => fetchCourseBySlug(slug),
+  });
+
+  if (isLoading) {
+    return (
+      <SiteLayout>
+        <p className="py-24 text-center text-muted-foreground">Loading course…</p>
+      </SiteLayout>
+    );
+  }
+
+  if (!course) {
+    return (
+      <SiteLayout>
+        <div className="py-24 text-center">
+          <h1 className="font-display text-2xl font-bold text-primary">Course not found</h1>
+          <Button asChild className="mt-6 rounded-xl bg-primary hover:bg-emerald">
+            <Link to="/courses">Browse all courses</Link>
+          </Button>
+        </div>
+      </SiteLayout>
+    );
+  }
+
+  const lessonCount = course.modules.reduce((n, m) => n + m.lessons.length, 0);
 
   return (
     <SiteLayout>
@@ -49,7 +66,7 @@ function CourseDetail() {
                 <Star className="h-4 w-4 fill-current" /> {course.rating}
               </span>
               <span className="flex items-center gap-1">
-                <PlayCircle className="h-4 w-4" /> {course.lessons} lessons
+                <PlayCircle className="h-4 w-4" /> {lessonCount} lessons
               </span>
               <span className="flex items-center gap-1">
                 <Clock className="h-4 w-4" /> {course.duration}
@@ -61,7 +78,7 @@ function CourseDetail() {
           </div>
           <div className="rounded-3xl border border-border/70 bg-card p-5 shadow-card">
             <img
-              src={course.thumbnail}
+              src={thumbFor(course.thumbnail_key)}
               alt={course.title}
               loading="lazy"
               width={1200}
@@ -107,7 +124,7 @@ function CourseDetail() {
           </ul>
 
           <h2 className="mt-12 font-display text-2xl font-bold text-primary">Course Curriculum</h2>
-          <Accordion type="multiple" defaultValue={["m1"]} className="mt-5">
+          <Accordion type="multiple" className="mt-5">
             {course.modules.map((m) => (
               <AccordionItem key={m.id} value={m.id} className="mb-3 rounded-2xl border border-border/70 bg-card px-5">
                 <AccordionTrigger className="font-display text-base font-semibold text-primary hover:no-underline">
@@ -118,14 +135,14 @@ function CourseDetail() {
                     {m.lessons.map((l) => (
                       <li key={l.id} className="flex items-center justify-between gap-3 rounded-xl bg-secondary/50 px-4 py-3">
                         <span className="flex items-center gap-2 text-sm">
-                          {l.free ? (
+                          {l.is_free ? (
                             <PlayCircle className="h-4 w-4 text-emerald" />
                           ) : (
                             <Lock className="h-4 w-4 text-muted-foreground" />
                           )}
                           {l.title}
                         </span>
-                        <span className="text-xs text-muted-foreground">{l.free ? "Free" : l.duration}</span>
+                        <span className="text-xs text-muted-foreground">{l.is_free ? "Free" : l.duration}</span>
                       </li>
                     ))}
                   </ul>

@@ -1,45 +1,109 @@
-import { useMemo, useState } from "react";
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, ArrowRight, Check, Lock, PlayCircle, Volume2 } from "lucide-react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { VideoPlayer } from "@/components/site/VideoPlayer";
 import { Button } from "@/components/ui/button";
-import { getCourse, practiceWords, type Lesson } from "@/lib/site-data";
+import { practiceWords } from "@/lib/site-data";
+import { fetchCourseBySlug } from "@/lib/db";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/learn/$slug")({
-  loader: ({ params }) => {
-    const course = getCourse(params.slug);
-    if (!course) throw notFound();
-    return { course };
-  },
-  head: ({ loaderData }) => {
-    if (!loaderData) {
-      return { meta: [{ title: "Lesson — Arabiyat Learn" }, { name: "robots", content: "noindex" }] };
-    }
-    return {
-      meta: [
-        { title: `${loaderData.course.title} — Lesson Player` },
-        { name: "description", content: `Watch lessons from ${loaderData.course.title}.` },
-        { name: "robots", content: "noindex" },
-        { property: "og:title", content: `${loaderData.course.title} — Lesson Player` },
-        { property: "og:description", content: "Recorded Arabic lessons for children." },
-      ],
-    };
-  },
+  head: () => ({
+    meta: [
+      { title: "Lesson Player — Arabiyat Learn" },
+      { name: "description", content: "Watch recorded Arabic lessons for children." },
+      { name: "robots", content: "noindex" },
+      { property: "og:title", content: "Lesson Player — Arabiyat Learn" },
+      { property: "og:description", content: "Recorded Arabic lessons for children." },
+    ],
+  }),
   component: LessonPlayer,
 });
 
 function LessonPlayer() {
-  const { course } = Route.useLoaderData();
+  const { slug } = Route.useParams();
+  const { user } = useAuth();
+  const qc = useQueryClient();
+  const [index, setIndex] = useState(0);
+
+  const { data: course, isLoading } = useQuery({
+    queryKey: ["course", slug],
+    queryFn: () => fetchCourseBySlug(slug),
+  });
+
+  const { data: enrolled } = useQuery({
+    queryKey: ["enrolled", course?.id, user?.id],
+    enabled: !!course?.id && !!user?.id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("enrollments")
+        .select("id")
+        .eq("course_id", course!.id)
+        .eq("user_id", user!.id)
+        .maybeSingle();
+      return !!data;
+    },
+  });
+
+  const { data: progress } = useQuery({
+    queryKey: ["progress", user?.id],
+    enabled: !!user?.id,
+    queryFn: async () => {
+      const { data } = await supabase.from("lesson_progress").select("lesson_id").eq("user_id", user!.id);
+      return (data ?? []).map((r) => r.lesson_id);
+    },
+  });
+
   const flat = useMemo(
-    () => course.modules.flatMap((m) => m.lessons.map((l) => ({ ...l, moduleTitle: m.title }))),
+    () => (course?.modules ?? []).flatMap((m) => m.lessons.map((l) => ({ ...l, moduleTitle: m.title }))),
     [course],
   );
-  const [index, setIndex] = useState(0);
-  const [completed, setCompleted] = useState<string[]>([]);
-  const lesson = flat[index] as Lesson & { moduleTitle: string };
+
+  useEffect(() => setIndex(0), [slug]);
+
+  if (isLoading) {
+    return (
+      <SiteLayout>
+        <p className="py-24 text-center text-muted-foreground">Loading lessons…</p>
+      </SiteLayout>
+    );
+  }
+
+  if (!course || flat.length === 0) {
+    return (
+      <SiteLayout>
+        <div className="py-24 text-center">
+          <h1 className="font-display text-2xl font-bold text-primary">No lessons available yet</h1>
+          <Button asChild className="mt-6 rounded-xl bg-primary hover:bg-emerald">
+            <Link to="/courses">Browse courses</Link>
+          </Button>
+        </div>
+      </SiteLayout>
+    );
+  }
+
+  const lesson = flat[Math.min(index, flat.length - 1)]!;
+  const canWatch = lesson.is_free || !!enrolled;
+  const completed = progress ?? [];
+
+  const markComplete = async () => {
+    if (!user) {
+      toast("Sign in to save progress");
+      return;
+    }
+    const { error } = await supabase.from("lesson_progress").insert({ user_id: user.id, lesson_id: lesson.id });
+    if (error && !error.message.includes("duplicate")) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Lesson marked as complete");
+    void qc.invalidateQueries({ queryKey: ["progress"] });
+  };
 
   return (
     <SiteLayout>
@@ -53,8 +117,8 @@ function LessonPlayer() {
         </Link>
         <div className="mt-5 grid gap-8 lg:grid-cols-[1.6fr_1fr]">
           <div>
-            {lesson.free ? (
-              <VideoPlayer src={lesson.videoUrl ?? ""} title={lesson.title} />
+            {canWatch ? (
+              <VideoPlayer src={lesson.video_url ?? ""} title={lesson.title} />
             ) : (
               <div className="flex aspect-video items-center justify-center rounded-3xl border border-border bg-secondary/60 text-center">
                 <div className="px-8">
@@ -81,19 +145,13 @@ function LessonPlayer() {
               >
                 <ArrowLeft className="mr-2 h-4 w-4" /> Previous Lesson
               </Button>
-              <Button
-                className="rounded-xl bg-primary hover:bg-emerald"
-                onClick={() => {
-                  setCompleted((c) => (c.includes(lesson.id) ? c : [...c, lesson.id]));
-                  toast.success("Lesson marked as complete");
-                }}
-              >
+              <Button className="rounded-xl bg-primary hover:bg-emerald" onClick={() => void markComplete()}>
                 <Check className="mr-2 h-4 w-4" /> Mark as Complete
               </Button>
               <Button
                 variant="outline"
                 className="rounded-xl"
-                disabled={index === flat.length - 1}
+                disabled={index >= flat.length - 1}
                 onClick={() => setIndex((i) => Math.min(flat.length - 1, i + 1))}
               >
                 Next Lesson <ArrowRight className="ml-2 h-4 w-4" />
@@ -110,9 +168,13 @@ function LessonPlayer() {
                     <p className="text-xs text-muted-foreground">{w.english}</p>
                     <button
                       className="mx-auto mt-3 flex items-center gap-1 rounded-full bg-secondary px-3 py-1.5 text-xs font-medium text-primary"
-                      onClick={() =>
-                        toast(w.roman, { description: "Audio pronunciation is added with the lesson recordings." })
-                      }
+                      onClick={() => {
+                        if (typeof window !== "undefined" && "speechSynthesis" in window) {
+                          const utter = new SpeechSynthesisUtterance(w.arabic);
+                          utter.lang = "ar-SA";
+                          window.speechSynthesis.speak(utter);
+                        }
+                      }}
                     >
                       <Volume2 className="h-3.5 w-3.5" /> Play
                     </button>
@@ -137,20 +199,20 @@ function LessonPlayer() {
                             onClick={() => setIndex(i)}
                             className={cn(
                               "flex w-full items-center justify-between gap-2 rounded-xl px-3 py-2 text-left text-sm transition-colors",
-                              i === index ? "bg-primary text-primary-foreground" : "hover:bg-secondary",
+                              i === index ? "bg-secondary text-primary" : "hover:bg-secondary/60",
                             )}
                           >
                             <span className="flex items-center gap-2">
                               {completed.includes(l.id) ? (
-                                <Check className="h-4 w-4 text-gold" />
-                              ) : l.free ? (
-                                <PlayCircle className="h-4 w-4" />
+                                <Check className="h-3.5 w-3.5 text-emerald" />
+                              ) : l.is_free || enrolled ? (
+                                <PlayCircle className="h-3.5 w-3.5 text-primary" />
                               ) : (
-                                <Lock className="h-4 w-4" />
+                                <Lock className="h-3.5 w-3.5 text-muted-foreground" />
                               )}
-                              {l.title}
+                              <span className="truncate">{l.title}</span>
                             </span>
-                            <span className="text-xs opacity-70">{l.duration}</span>
+                            <span className="shrink-0 text-xs text-muted-foreground">{l.duration}</span>
                           </button>
                         </li>
                       );

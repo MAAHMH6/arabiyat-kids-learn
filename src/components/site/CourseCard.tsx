@@ -1,9 +1,20 @@
 import { Link } from "@tanstack/react-router";
 import { Star, Clock, PlayCircle } from "lucide-react";
-import type { Course } from "@/lib/site-data";
 import { Button } from "@/components/ui/button";
 
-export function CourseCard({ course }: { course: Course }) {
+export type CardCourse = {
+  slug: string;
+  title: string;
+  description: string;
+  thumbnail: string;
+  level: string;
+  price: number;
+  rating: number;
+  duration: string;
+  lessons: number;
+};
+
+export function CourseCard({ course }: { course: CardCourse }) {
   return (
     <article className="card-lift flex flex-col overflow-hidden rounded-3xl border border-border/70 bg-card shadow-soft">
       <img

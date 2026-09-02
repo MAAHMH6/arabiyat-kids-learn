@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { SiteLayout, PageHeader } from "@/components/site/SiteLayout";
 import { CourseCard } from "@/components/site/CourseCard";
-import { courseFilters, courses } from "@/lib/site-data";
+import { courseFilters } from "@/lib/site-data";
+import { fetchCourses, thumbFor } from "@/lib/db";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/courses/")({
@@ -23,7 +25,9 @@ export const Route = createFileRoute("/courses/")({
 
 function CoursesPage() {
   const [filter, setFilter] = useState<string>("All");
-  const visible = courses.filter((c) => filter === "All" || c.category === filter || c.level === filter);
+  const { data, isLoading } = useQuery({ queryKey: ["courses"], queryFn: fetchCourses });
+
+  const visible = (data ?? []).filter((c) => filter === "All" || c.category === filter || c.level === filter);
 
   return (
     <SiteLayout>
@@ -51,10 +55,24 @@ function CoursesPage() {
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {visible.map((c) => (
-            <CourseCard key={c.slug} course={c} />
+            <CourseCard
+              key={c.slug}
+              course={{
+                slug: c.slug,
+                title: c.title,
+                description: c.description,
+                thumbnail: thumbFor(c.thumbnail_key),
+                level: c.level,
+                price: Number(c.price),
+                rating: Number(c.rating),
+                duration: c.duration,
+                lessons: 0,
+              }}
+            />
           ))}
         </div>
-        {visible.length === 0 && (
+        {isLoading && <p className="py-16 text-center text-muted-foreground">Loading courses…</p>}
+        {!isLoading && visible.length === 0 && (
           <p className="py-16 text-center text-muted-foreground">No courses in this category yet.</p>
         )}
       </div>

@@ -1,8 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { DashboardShell, ProgressBar, StatCard } from "@/components/site/DashboardShell";
-import { courses } from "@/lib/site-data";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import { fetchMyEnrollments, fetchProfile } from "@/lib/db";
 
 export const Route = createFileRoute("/parent")({
+  ssr: false,
   head: () => ({
     meta: [
       { title: "Parent Dashboard — Arabiyat Learn" },
@@ -15,50 +20,75 @@ export const Route = createFileRoute("/parent")({
   component: ParentDashboard,
 });
 
-const children = [
-  { name: "Amina", age: 8, progress: 65, lessons: 18 },
-  { name: "Yusuf", age: 6, progress: 24, lessons: 6 },
-];
-
-const payments = [
-  { date: "12 Aug 2026", item: courses[0]?.title ?? "Arabic course", amount: courses[0]?.price ?? 0 },
-  { date: "02 Jul 2026", item: courses[1]?.title ?? "Arabic course", amount: courses[1]?.price ?? 0 },
-];
-
 function ParentDashboard() {
+  const { user, loading, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) void navigate({ to: "/login" });
+  }, [loading, user, navigate]);
+
+  const { data: enrolled = [] } = useQuery({
+    queryKey: ["my-enrollments", user?.id],
+    queryFn: () => fetchMyEnrollments(user!.id),
+    enabled: Boolean(user),
+  });
+  const { data: profile } = useQuery({
+    queryKey: ["profile", user?.id],
+    queryFn: () => fetchProfile(user!.id),
+    enabled: Boolean(user),
+  });
+
+  const spent = enrolled.reduce((s, e) => s + Number(e.course.price), 0);
+  const lessons = enrolled.reduce((s, e) => s + e.completedLessons, 0);
+
   return (
     <DashboardShell
       title="Parent Dashboard"
-      subtitle="A calm overview of your children's Arabic learning."
+      subtitle={
+        profile?.child_name
+          ? `A calm overview of ${profile.child_name}'s Arabic learning.`
+          : "A calm overview of your child's Arabic learning."
+      }
       items={[
         { label: "Overview", active: true },
         { label: "My Learning", to: "/dashboard" },
         { label: "Browse Courses", to: "/courses" },
         { label: "Contact Teacher", to: "/contact" },
-        { label: "Sign out", to: "/login" },
       ]}
     >
       <div className="grid gap-5 sm:grid-cols-3">
-        <StatCard label="Children" value="2" hint="Linked to this account" />
-        <StatCard label="Active enrolments" value="3" hint="Beginner and speaking" />
-        <StatCard label="Spent this year" value={`$${payments.reduce((s, p) => s + p.amount, 0)}`} />
+        <StatCard label="Child" value={profile?.child_name ?? "—"} hint="Linked to this account" />
+        <StatCard label="Active enrolments" value={String(enrolled.length)} hint="Courses in progress" />
+        <StatCard label="Total spent" value={`$${spent}`} hint={`${lessons} lessons completed`} />
       </div>
 
-      <h2 className="mt-10 font-display text-xl font-bold text-primary">Children's progress</h2>
-      <div className="mt-5 grid gap-5 md:grid-cols-2">
-        {children.map((c) => (
-          <div key={c.name} className="rounded-3xl border border-border/70 bg-card p-6 shadow-soft">
-            <p className="font-display text-lg font-bold text-primary">{c.name}</p>
-            <p className="text-xs text-muted-foreground">Age {c.age} · {c.lessons} lessons completed</p>
-            <div className="mt-5">
-              <ProgressBar value={c.progress} />
-              <p className="mt-2 text-xs text-muted-foreground">{c.progress}% of current course</p>
+      <h2 className="mt-10 font-display text-xl font-bold text-primary">Course progress</h2>
+      {enrolled.length === 0 ? (
+        <div className="mt-5 rounded-3xl border border-dashed border-border bg-card p-8 text-center">
+          <p className="text-sm text-muted-foreground">No enrolments yet.</p>
+          <Button asChild className="mt-5 rounded-xl bg-primary hover:bg-emerald">
+            <Link to="/courses">Browse courses</Link>
+          </Button>
+        </div>
+      ) : (
+        <div className="mt-5 grid gap-5 md:grid-cols-2">
+          {enrolled.map((e) => (
+            <div key={e.course.id} className="rounded-3xl border border-border/70 bg-card p-6 shadow-soft">
+              <p className="font-display text-lg font-bold text-primary">{e.course.title}</p>
+              <p className="text-xs text-muted-foreground">
+                {e.completedLessons} of {e.totalLessons} lessons completed
+              </p>
+              <div className="mt-5">
+                <ProgressBar value={e.progress} />
+                <p className="mt-2 text-xs text-muted-foreground">{e.progress}% of current course</p>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
-      <h2 className="mt-10 font-display text-xl font-bold text-primary">Payment history</h2>
+      <h2 className="mt-10 font-display text-xl font-bold text-primary">Enrolment history</h2>
       <div className="mt-5 overflow-hidden rounded-3xl border border-border/70 bg-card shadow-soft">
         <table className="w-full text-sm">
           <thead className="bg-cream/70 text-left text-xs uppercase tracking-wide text-muted-foreground">
@@ -69,16 +99,35 @@ function ParentDashboard() {
             </tr>
           </thead>
           <tbody>
-            {payments.map((p) => (
-              <tr key={p.date} className="border-t border-border/60">
-                <td className="px-6 py-3">{p.date}</td>
-                <td className="px-6 py-3">{p.item}</td>
-                <td className="px-6 py-3">${p.amount}</td>
+            {enrolled.length === 0 ? (
+              <tr>
+                <td className="px-6 py-4 text-muted-foreground" colSpan={3}>
+                  No payments yet.
+                </td>
               </tr>
-            ))}
+            ) : (
+              enrolled.map((e) => (
+                <tr key={e.course.id} className="border-t border-border/60">
+                  <td className="px-6 py-3">{new Date(e.enrolledAt).toLocaleDateString()}</td>
+                  <td className="px-6 py-3">{e.course.title}</td>
+                  <td className="px-6 py-3">${Number(e.course.price)}</td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
+
+      <Button
+        variant="outline"
+        className="mt-10 rounded-xl"
+        onClick={async () => {
+          await signOut();
+          void navigate({ to: "/login" });
+        }}
+      >
+        Sign out
+      </Button>
     </DashboardShell>
   );
 }

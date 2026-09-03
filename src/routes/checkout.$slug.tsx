@@ -1,33 +1,27 @@
-import { useState } from "react";
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { Lock, PartyPopper, ShieldCheck } from "lucide-react";
+import { toast } from "sonner";
 import { z } from "zod";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getCourse } from "@/lib/site-data";
+import { useAuth } from "@/hooks/useAuth";
+import { createEnrollment, fetchCourseBySlug, thumbFor } from "@/lib/db";
 
 export const Route = createFileRoute("/checkout/$slug")({
-  loader: ({ params }) => {
-    const course = getCourse(params.slug);
-    if (!course) throw notFound();
-    return { course };
-  },
-  head: ({ loaderData }) => {
-    if (!loaderData) {
-      return { meta: [{ title: "Checkout — Arabiyat Learn" }, { name: "robots", content: "noindex" }] };
-    }
-    return {
-      meta: [
-        { title: `Enroll in ${loaderData.course.title} — Arabiyat Learn` },
-        { name: "description", content: `Secure enrollment for ${loaderData.course.title}.` },
-        { name: "robots", content: "noindex" },
-        { property: "og:title", content: `Enroll in ${loaderData.course.title}` },
-        { property: "og:description", content: "Complete your child's course enrollment." },
-      ],
-    };
-  },
+  ssr: false,
+  head: () => ({
+    meta: [
+      { title: "Checkout — Arabiyat Learn" },
+      { name: "description", content: "Secure enrollment for your child's Arabic course." },
+      { name: "robots", content: "noindex" },
+      { property: "og:title", content: "Checkout — Arabiyat Learn" },
+      { property: "og:description", content: "Complete your child's course enrollment." },
+    ],
+  }),
   component: Checkout,
 });
 
@@ -37,9 +31,44 @@ const schema = z.object({
 });
 
 function Checkout() {
-  const { course } = Route.useLoaderData();
+  const { slug } = Route.useParams();
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [done, setDone] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const { data: course, isLoading } = useQuery({
+    queryKey: ["course", slug],
+    queryFn: () => fetchCourseBySlug(slug),
+  });
+
+  useEffect(() => {
+    if (!loading && !user) void navigate({ to: "/login" });
+  }, [loading, user, navigate]);
+
+  if (isLoading) {
+    return (
+      <SiteLayout>
+        <p className="mx-auto max-w-xl px-4 py-24 text-center text-muted-foreground">Loading course…</p>
+      </SiteLayout>
+    );
+  }
+
+  if (!course) {
+    return (
+      <SiteLayout>
+        <section className="mx-auto max-w-xl px-4 py-24 text-center">
+          <h1 className="font-display text-2xl font-bold text-primary">Course not found</h1>
+          <Button asChild className="mt-6 rounded-xl bg-primary hover:bg-emerald">
+            <Link to="/courses">Browse courses</Link>
+          </Button>
+        </section>
+      </SiteLayout>
+    );
+  }
+
+  const lessonCount = course.modules.reduce((n, m) => n + m.lessons.length, 0);
 
   if (done) {
     return (
@@ -48,11 +77,16 @@ function Checkout() {
           <PartyPopper className="mx-auto h-10 w-10 text-gold" />
           <h1 className="mt-5 font-display text-3xl font-bold text-primary">🎉 You're Enrolled!</h1>
           <p className="mt-3 text-muted-foreground">Your Arabic learning journey starts now.</p>
-          <Button asChild size="lg" className="mt-8 rounded-xl bg-primary hover:bg-emerald">
-            <Link to="/learn/$slug" params={{ slug: course.slug }}>
-              Go to My Course
-            </Link>
-          </Button>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Button asChild size="lg" className="rounded-xl bg-primary hover:bg-emerald">
+              <Link to="/learn/$slug" params={{ slug: course.slug }}>
+                Go to My Course
+              </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="rounded-xl">
+              <Link to="/dashboard">My Dashboard</Link>
+            </Button>
+          </div>
         </section>
       </SiteLayout>
     );
@@ -65,7 +99,7 @@ function Checkout() {
           <h1 className="font-display text-3xl font-bold text-primary">Complete Your Enrollment</h1>
           <div className="mt-6 flex gap-4 rounded-3xl border border-border/70 bg-card p-5 shadow-soft">
             <img
-              src={course.thumbnail}
+              src={thumbFor(course.thumbnail_key)}
               alt={course.title}
               loading="lazy"
               width={1200}
@@ -75,15 +109,15 @@ function Checkout() {
             <div>
               <h2 className="font-display text-lg font-bold text-primary">{course.title}</h2>
               <p className="text-xs text-muted-foreground">
-                {course.lessons} lessons · {course.duration} · {course.language}
+                {lessonCount} lessons · {course.duration} · {course.language}
               </p>
-              <p className="mt-2 text-sm font-semibold text-primary">${course.price}</p>
+              <p className="mt-2 text-sm font-semibold text-primary">${Number(course.price)}</p>
             </div>
           </div>
 
           <form
             className="mt-8 space-y-5 rounded-3xl border border-border/70 bg-card p-7 shadow-soft"
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
               const fd = new FormData(e.currentTarget);
               const parsed = schema.safeParse({
@@ -97,7 +131,21 @@ function Checkout() {
                 return;
               }
               setErrors({});
-              setDone(true);
+              if (!user) {
+                void navigate({ to: "/login" });
+                return;
+              }
+              setSaving(true);
+              try {
+                await createEnrollment(user.id, course.id);
+                setDone(true);
+              } catch (err) {
+                toast.error("Could not complete enrollment", {
+                  description: err instanceof Error ? err.message : "Please try again.",
+                });
+              } finally {
+                setSaving(false);
+              }
             }}
           >
             <div>
@@ -107,7 +155,14 @@ function Checkout() {
             </div>
             <div>
               <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" type="email" className="mt-2 rounded-xl" placeholder="you@example.com" />
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                defaultValue={user?.email ?? ""}
+                className="mt-2 rounded-xl"
+                placeholder="you@example.com"
+              />
               {errors['email'] && <p className="mt-1 text-xs text-destructive">{errors['email']}</p>}
             </div>
             <div className="rounded-2xl border border-dashed border-border bg-secondary/50 p-5 text-sm text-muted-foreground">
@@ -119,8 +174,8 @@ function Checkout() {
                 processed yet.
               </p>
             </div>
-            <Button type="submit" size="lg" className="w-full rounded-xl bg-primary hover:bg-emerald">
-              Complete Enrollment
+            <Button type="submit" size="lg" disabled={saving} className="w-full rounded-xl bg-primary hover:bg-emerald">
+              {saving ? "Enrolling…" : "Complete Enrollment"}
             </Button>
           </form>
         </div>
@@ -130,7 +185,7 @@ function Checkout() {
           <dl className="mt-5 space-y-3 text-sm">
             <div className="flex justify-between">
               <dt className="text-muted-foreground">{course.title}</dt>
-              <dd className="font-medium">${course.price}</dd>
+              <dd className="font-medium">${Number(course.price)}</dd>
             </div>
             <div className="flex justify-between">
               <dt className="text-muted-foreground">Lifetime access</dt>
@@ -138,7 +193,7 @@ function Checkout() {
             </div>
             <div className="flex justify-between border-t border-border pt-3 font-display text-lg font-bold text-primary">
               <dt>Total</dt>
-              <dd>${course.price}</dd>
+              <dd>${Number(course.price)}</dd>
             </div>
           </dl>
           <p className="mt-6 flex items-start gap-2 text-xs text-muted-foreground">

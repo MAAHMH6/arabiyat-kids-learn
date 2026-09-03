@@ -74,3 +74,67 @@ export async function countLessons(courseId: string) {
   const modules = await fetchCurriculum(courseId);
   return modules.reduce((n, m) => n + m.lessons.length, 0);
 }
+
+export type EnrollmentSummary = {
+  course: CourseRow;
+  totalLessons: number;
+  completedLessons: number;
+  progress: number;
+  enrolledAt: string;
+};
+
+export async function fetchMyEnrollments(userId: string): Promise<EnrollmentSummary[]> {
+  const { data, error } = await supabase
+    .from("enrollments")
+    .select("created_at, courses(*)")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+
+  const { data: progress, error: pErr } = await supabase
+    .from("lesson_progress")
+    .select("lesson_id")
+    .eq("user_id", userId);
+  if (pErr) throw pErr;
+  const done = new Set((progress ?? []).map((p) => p.lesson_id));
+
+  const rows = (data ?? []).filter((r) => r.courses) as { created_at: string; courses: CourseRow }[];
+  return Promise.all(
+    rows.map(async (r) => {
+      const modules = await fetchCurriculum(r.courses.id);
+      const lessons = modules.flatMap((m) => m.lessons);
+      const completed = lessons.filter((l) => done.has(l.id)).length;
+      return {
+        course: r.courses,
+        totalLessons: lessons.length,
+        completedLessons: completed,
+        progress: lessons.length ? Math.round((completed / lessons.length) * 100) : 0,
+        enrolledAt: r.created_at,
+      };
+    }),
+  );
+}
+
+export async function isEnrolled(userId: string, courseId: string) {
+  const { data, error } = await supabase
+    .from("enrollments")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("course_id", courseId)
+    .maybeSingle();
+  if (error) throw error;
+  return Boolean(data);
+}
+
+export async function createEnrollment(userId: string, courseId: string) {
+  const existing = await isEnrolled(userId, courseId);
+  if (existing) return;
+  const { error } = await supabase.from("enrollments").insert({ user_id: userId, course_id: courseId });
+  if (error) throw error;
+}
+
+export async function fetchProfile(userId: string) {
+  const { data, error } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
+  if (error) throw error;
+  return data;
+}

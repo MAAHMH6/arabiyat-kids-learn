@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
-import { Menu, X, User, ArrowRight } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Menu, X, User, ArrowRight, LayoutDashboard, LogOut, Shield } from "lucide-react";
 import { Logo } from "./Logo";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
 
 const links = [
   { to: "/", label: "Home" },
@@ -15,6 +16,14 @@ const links = [
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const { user, isAdmin, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    setOpen(false);
+    void navigate({ to: "/" });
+  };
 
   return (
     <>
@@ -40,11 +49,31 @@ export function Navbar() {
             ))}
           </div>
           <div className="hidden items-center gap-3 lg:flex">
-            <Button asChild variant="outline" className="rounded-xl border-border">
-              <Link to="/login">
-                <User className="mr-1 h-4 w-4" /> Login
-              </Link>
-            </Button>
+            {user ? (
+              <>
+                {isAdmin && (
+                  <Button asChild variant="ghost" className="rounded-xl">
+                    <Link to="/admin">
+                      <Shield className="mr-1 h-4 w-4" /> Admin
+                    </Link>
+                  </Button>
+                )}
+                <Button asChild variant="outline" className="rounded-xl border-border">
+                  <Link to="/dashboard">
+                    <LayoutDashboard className="mr-1 h-4 w-4" /> My Learning
+                  </Link>
+                </Button>
+                <Button variant="ghost" className="rounded-xl" onClick={handleSignOut}>
+                  <LogOut className="mr-1 h-4 w-4" /> Sign out
+                </Button>
+              </>
+            ) : (
+              <Button asChild variant="outline" className="rounded-xl border-border">
+                <Link to="/login">
+                  <User className="mr-1 h-4 w-4" /> Login
+                </Link>
+              </Button>
+            )}
             <Button asChild className="gradient-pink rounded-xl text-primary-foreground hover:opacity-90">
               <Link to="/courses">
                 Browse Courses <ArrowRight className="ml-1 h-4 w-4" />
@@ -74,11 +103,31 @@ export function Navbar() {
               ))}
             </div>
             <div className="mt-4 flex flex-col gap-2">
-              <Button asChild variant="outline" className="rounded-xl">
-                <Link to="/login" onClick={() => setOpen(false)}>
-                  Login
-                </Link>
-              </Button>
+              {user ? (
+                <>
+                  {isAdmin && (
+                    <Button asChild variant="outline" className="rounded-xl">
+                      <Link to="/admin" onClick={() => setOpen(false)}>
+                        Admin Panel
+                      </Link>
+                    </Button>
+                  )}
+                  <Button asChild variant="outline" className="rounded-xl">
+                    <Link to="/dashboard" onClick={() => setOpen(false)}>
+                      My Learning
+                    </Link>
+                  </Button>
+                  <Button variant="ghost" className="rounded-xl" onClick={handleSignOut}>
+                    Sign out
+                  </Button>
+                </>
+              ) : (
+                <Button asChild variant="outline" className="rounded-xl">
+                  <Link to="/login" onClick={() => setOpen(false)}>
+                    Login
+                  </Link>
+                </Button>
+              )}
               <Button asChild className="gradient-pink rounded-xl text-primary-foreground">
                 <Link to="/courses" onClick={() => setOpen(false)}>
                   Browse Courses

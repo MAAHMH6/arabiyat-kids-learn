@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
   PlayCircle,
@@ -19,7 +20,8 @@ import { CourseCard } from "@/components/site/CourseCard";
 import { Testimonials } from "@/components/site/Testimonials";
 import { VideoPlayer } from "@/components/site/VideoPlayer";
 import { Button } from "@/components/ui/button";
-import { courses, howItWorks, learningTopics, parentReasons } from "@/lib/site-data";
+import { howItWorks, learningTopics, parentReasons } from "@/lib/site-data";
+import { fetchCourses, fetchLessonCounts, thumbFor } from "@/lib/db";
 import heroImage from "@/assets/hero-classroom.jpg";
 
 export const Route = createFileRoute("/")({
@@ -44,7 +46,11 @@ export const Route = createFileRoute("/")({
 const topicIcons = { letters: Type, numbers: Hash, book: BookOpen, speak: MessageCircle, sound: Volume2, kids: Users };
 
 function Home() {
-  const featured = courses.find((c) => c.featured)!;
+  const { data: allCourses } = useQuery({ queryKey: ["courses"], queryFn: fetchCourses });
+  const { data: counts } = useQuery({ queryKey: ["lesson-counts"], queryFn: fetchLessonCounts });
+  const list = allCourses ?? [];
+  const featured = list.find((c) => c.featured) ?? list[0];
+  const featuredLessons = featured ? (counts?.[featured.id] ?? 0) : 0;
 
   return (
     <SiteLayout>
@@ -121,11 +127,12 @@ function Home() {
       </section>
 
       {/* Featured course */}
+      {featured && (
       <section className="bg-cream/60 py-16">
         <div className="mx-auto max-w-7xl px-4">
           <div className="grid items-center gap-8 overflow-hidden rounded-4xl border border-border/70 bg-card p-6 shadow-card md:grid-cols-2 md:p-10">
             <img
-              src={featured.thumbnail}
+              src={thumbFor(featured.thumbnail_key)}
               alt={featured.title}
               loading="lazy"
               width={1200}
@@ -141,7 +148,7 @@ function Home() {
               <dl className="mt-6 grid grid-cols-2 gap-3 text-sm">
                 {[
                   ["Teacher", featured.teacher],
-                  ["Lessons", `${featured.lessons} lessons`],
+                  ["Lessons", `${featuredLessons} lessons`],
                   ["Duration", featured.duration],
                   ["Level", featured.level],
                   ["Language", featured.language],
@@ -154,7 +161,7 @@ function Home() {
                 ))}
               </dl>
               <div className="mt-7 flex items-center gap-5">
-                <span className="font-display text-3xl font-bold text-primary">${featured.price}</span>
+                <span className="font-display text-3xl font-bold text-primary">${Number(featured.price)}</span>
                 <Button asChild size="lg" className="rounded-xl bg-primary hover:bg-emerald">
                   <Link to="/courses/$slug" params={{ slug: featured.slug }}>
                     View Course <ArrowRight className="ml-2 h-4 w-4" />
@@ -165,6 +172,7 @@ function Home() {
           </div>
         </div>
       </section>
+      )}
 
       {/* How it works */}
       <section className="mx-auto max-w-7xl px-4 py-16">
@@ -209,8 +217,21 @@ function Home() {
       <section className="mx-auto max-w-7xl px-4 py-16">
         <SectionHeading title="Popular Courses" subtitle="Recorded lessons your child can watch anytime." />
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {courses.slice(0, 3).map((c) => (
-            <CourseCard key={c.slug} course={c} />
+          {list.slice(0, 3).map((c) => (
+            <CourseCard
+              key={c.slug}
+              course={{
+                slug: c.slug,
+                title: c.title,
+                description: c.description,
+                thumbnail: thumbFor(c.thumbnail_key),
+                level: c.level,
+                price: Number(c.price),
+                rating: Number(c.rating),
+                duration: c.duration,
+                lessons: counts?.[c.id] ?? 0,
+              }}
+            />
           ))}
         </div>
         <div className="mt-10 text-center">
@@ -242,7 +263,7 @@ function Home() {
               ))}
             </ul>
             <Button asChild size="lg" className="mt-7 rounded-xl bg-primary hover:bg-emerald">
-              <Link to="/courses/$slug" params={{ slug: featured.slug }}>
+              <Link to={featured ? "/courses/$slug" : "/courses"} params={{ slug: featured?.slug ?? "" }}>
                 Start the Full Course
               </Link>
             </Button>

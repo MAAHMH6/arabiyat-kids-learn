@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { SiteLayout, PageHeader } from "@/components/site/SiteLayout";
 import { CourseCard } from "@/components/site/CourseCard";
 import { courseFilters } from "@/lib/site-data";
-import { fetchCourses, thumbFor } from "@/lib/db";
+import { fetchCourses, fetchLessonCounts, thumbFor } from "@/lib/db";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/courses/")({
@@ -26,6 +26,7 @@ export const Route = createFileRoute("/courses/")({
 function CoursesPage() {
   const [filter, setFilter] = useState<string>("All");
   const { data, isLoading } = useQuery({ queryKey: ["courses"], queryFn: fetchCourses });
+  const { data: counts } = useQuery({ queryKey: ["lesson-counts"], queryFn: fetchLessonCounts });
 
   const visible = (data ?? []).filter((c) => filter === "All" || c.category === filter || c.level === filter);
 
@@ -66,7 +67,7 @@ function CoursesPage() {
                 price: Number(c.price),
                 rating: Number(c.rating),
                 duration: c.duration,
-                lessons: 0,
+                lessons: counts?.[c.id] ?? 0,
               }}
             />
           ))}

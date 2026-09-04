@@ -70,6 +70,20 @@ export async function fetchResources(): Promise<ResourceRow[]> {
   return data ?? [];
 }
 
+export async function fetchLessonCounts(): Promise<Record<string, number>> {
+  const { data: modules, error: mErr } = await supabase.from("modules").select("id, course_id");
+  if (mErr) throw mErr;
+  const { data: lessons, error: lErr } = await supabase.from("lessons").select("module_id");
+  if (lErr) throw lErr;
+  const moduleToCourse = new Map((modules ?? []).map((m) => [m.id, m.course_id]));
+  const counts: Record<string, number> = {};
+  for (const l of lessons ?? []) {
+    const courseId = moduleToCourse.get(l.module_id);
+    if (courseId) counts[courseId] = (counts[courseId] ?? 0) + 1;
+  }
+  return counts;
+}
+
 export async function countLessons(courseId: string) {
   const modules = await fetchCurriculum(courseId);
   return modules.reduce((n, m) => n + m.lessons.length, 0);

@@ -45,7 +45,7 @@ export function Footer() {
             href="tel:+923098444501"
             className="mt-4 inline-flex items-center gap-2 text-sm text-primary-foreground/80 transition-colors hover:text-gold"
           >
-            <Phone className="h-4 w-4" /> 03098444501
+            <Phone className="h-4 w-4" /> +92 3098444501
           </a>
           <div className="mt-4 flex items-center gap-3" aria-label="Social media links">
             <a

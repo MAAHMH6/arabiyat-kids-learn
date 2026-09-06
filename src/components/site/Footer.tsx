@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { Facebook, Instagram, Phone } from "lucide-react";
 import { Logo } from "./Logo";
 
 const columns = [
@@ -40,6 +41,41 @@ export function Footer() {
           <p className="mt-4 text-sm text-primary-foreground/80">
             Helping English-speaking children learn Arabic, speak with confidence and grow.
           </p>
+          <a
+            href="tel:+923098444501"
+            className="mt-4 inline-flex items-center gap-2 text-sm text-primary-foreground/80 transition-colors hover:text-gold"
+          >
+            <Phone className="h-4 w-4" /> 03098444501
+          </a>
+          <div className="mt-4 flex items-center gap-3" aria-label="Social media links">
+            <a
+              href="https://www.instagram.com/arabiyatlearn"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Arabiyat Learn on Instagram"
+              className="rounded-full border border-primary-foreground/20 p-2 transition-colors hover:border-gold hover:text-gold"
+            >
+              <Instagram className="h-4 w-4" />
+            </a>
+            <a
+              href="https://www.facebook.com/profile.php?"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Arabiyat Learn on Facebook"
+              className="rounded-full border border-primary-foreground/20 p-2 transition-colors hover:border-gold hover:text-gold"
+            >
+              <Facebook className="h-4 w-4" />
+            </a>
+            <a
+              href="https://www.threads.com/@arabiyatlearn"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Arabiyat Learn on Threads"
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-primary-foreground/20 text-sm font-bold transition-colors hover:border-gold hover:text-gold"
+            >
+              @
+            </a>
+          </div>
         </div>
         {columns.map((col) => (
           <div key={col.title}>

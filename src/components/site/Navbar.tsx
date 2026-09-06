@@ -12,6 +12,7 @@ const links = [
   { to: "/how-it-works", label: "How It Works" },
   { to: "/resources", label: "Resources" },
   { to: "/faq", label: "FAQ" },
+  { to: "/contact", label: "Contact" },
 ] as const;
 
 export function Navbar() {

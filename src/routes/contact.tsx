@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Mail, MessageCircle, Clock } from "lucide-react";
+import { Clock, Facebook, Instagram, Mail, MessageCircle, Phone } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { SiteLayout, PageHeader } from "@/components/site/SiteLayout";
@@ -37,15 +37,33 @@ function Contact() {
         <div className="space-y-4">
           {[
             { icon: Mail, title: "Email", body: "hello@arabiyatlearning.com" },
+            { icon: Phone, title: "Phone", body: "03098444501", href: "tel:+923098444501" },
             { icon: MessageCircle, title: "Support", body: "Course access and enrollment help." },
             { icon: Clock, title: "Response time", body: "Usually within 1–2 business days." },
           ].map((i) => (
             <div key={i.title} className="rounded-3xl border border-border/70 bg-card p-6 shadow-soft">
               <i.icon className="h-5 w-5 text-emerald" />
               <h3 className="mt-3 font-display text-lg font-bold text-primary">{i.title}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{i.body}</p>
+              {i.href ? (
+                <a href={i.href} className="mt-1 inline-block text-sm text-muted-foreground hover:text-primary">
+                  {i.body}
+                </a>
+              ) : (
+                <p className="mt-1 text-sm text-muted-foreground">{i.body}</p>
+              )}
             </div>
           ))}
+          <div className="flex items-center gap-3 pt-2">
+            <a href="https://www.instagram.com/arabiyatlearn" target="_blank" rel="noreferrer" aria-label="Arabiyat Learn on Instagram" className="rounded-full border border-border bg-card p-3 text-primary transition-colors hover:text-pink">
+              <Instagram className="h-5 w-5" />
+            </a>
+            <a href="https://www.facebook.com/profile.php?" target="_blank" rel="noreferrer" aria-label="Arabiyat Learn on Facebook" className="rounded-full border border-border bg-card p-3 text-primary transition-colors hover:text-pink">
+              <Facebook className="h-5 w-5" />
+            </a>
+            <a href="https://www.threads.com/@arabiyatlearn" target="_blank" rel="noreferrer" aria-label="Arabiyat Learn on Threads" className="flex h-[46px] w-[46px] items-center justify-center rounded-full border border-border bg-card text-lg font-bold text-primary transition-colors hover:text-pink">
+              @
+            </a>
+          </div>
         </div>
         <form
           className="rounded-3xl border border-border/70 bg-card p-8 shadow-card"

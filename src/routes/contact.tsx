@@ -37,7 +37,7 @@ function Contact() {
         <div className="space-y-4">
           {[
             { icon: Mail, title: "Email", body: "hello@arabiyatlearn.com" },
-            { icon: Phone, title: "Phone", body: "+923098444501", href: "tel:+923098444501" },
+            { icon: Phone, title: "Phone", body: "+92 3098444501", href: "tel:+923098444501" },
             { icon: MessageCircle, title: "Support", body: "Course access and enrollment help." },
             { icon: Clock, title: "Response time", body: "Usually within 1–2 business days." },
           ].map((i) => (

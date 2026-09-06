@@ -36,8 +36,8 @@ function Contact() {
       <section className="mx-auto grid max-w-6xl gap-10 px-4 py-16 lg:grid-cols-[1fr_1.2fr]">
         <div className="space-y-4">
           {[
-            { icon: Mail, title: "Email", body: "hello@arabiyatlearning.com" },
-            { icon: Phone, title: "Phone", body: "03098444501", href: "tel:+923098444501" },
+            { icon: Mail, title: "Email", body: "hello@arabiyatlearn.com" },
+            { icon: Phone, title: "Phone", body: "+923098444501", href: "tel:+923098444501" },
             { icon: MessageCircle, title: "Support", body: "Course access and enrollment help." },
             { icon: Clock, title: "Response time", body: "Usually within 1–2 business days." },
           ].map((i) => (

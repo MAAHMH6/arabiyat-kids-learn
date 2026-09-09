@@ -9,6 +9,7 @@ import { TeacherManagement } from './components/admin/TeacherManagement';
 import { HomeworkTopics } from './components/admin/HomeworkTopics';
 import { AdminReports } from './components/admin/AdminReports';
 import { OrgSettings } from './components/admin/OrgSettings';
+import { CoursesManagement } from './components/admin/CoursesManagement';
 import { TeacherDashboard } from './components/teacher/TeacherDashboard';
 import { TeacherCalendar } from './components/teacher/TeacherCalendar';
 import { TeacherStudents } from './components/teacher/TeacherStudents';
@@ -49,6 +50,8 @@ export function PortalApp() {
           return 'Student Directory & Schedules';
         case 'teachers':
           return 'Teacher Management & Credentials';
+        case 'courses':
+          return 'Academy Courses & Curriculum';
         case 'homework':
           return 'Homework Topics & Curriculum';
         case 'reports':
@@ -192,6 +195,7 @@ export function PortalApp() {
                 {activeTab === 'calendar' && <AdminCalendar />}
                 {activeTab === 'students' && <StudentManagement />}
                 {activeTab === 'teachers' && <TeacherManagement />}
+                {activeTab === 'courses' && <CoursesManagement />}
                 {activeTab === 'homework' && <HomeworkTopics />}
                 {activeTab === 'reports' && <AdminReports />}
                 {activeTab === 'settings' && <OrgSettings />}

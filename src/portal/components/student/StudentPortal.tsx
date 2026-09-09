@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { 
   Calendar as CalendarIcon, 
@@ -13,12 +13,28 @@ import {
 } from 'lucide-react';
 
 export const StudentPortal: React.FC = () => {
-  const { students, teachers, sessions, homeworkTopics } = useApp();
+  const { students, teachers, sessions, homeworkTopics, currentUser, activeMonth } = useApp();
+
+  const isStudentUser = currentUser?.role === 'student';
+
+  // Automatically find the student associated with the logged-in user
+  const loggedInStudent = useMemo(() => {
+    if (!currentUser) return null;
+    return (
+      students.find(
+        (s) =>
+          (s.email && s.email.toLowerCase() === currentUser.email.toLowerCase()) ||
+          `usr-${s.id}` === currentUser.id ||
+          s.id === currentUser.id
+      ) || null
+    );
+  }, [students, currentUser]);
+
   const [selectedStudentId, setSelectedStudentId] = useState<string>(
-    students[0]?.id || ''
+    loggedInStudent?.id || students[0]?.id || ''
   );
 
-  const currentStudent = students.find((s) => s.id === selectedStudentId) || students[0];
+  const currentStudent = loggedInStudent || students.find((s) => s.id === selectedStudentId) || students[0];
   const teacher = teachers.find((t) => t.id === currentStudent?.teacherId);
 
   // Sessions for this student
@@ -32,10 +48,12 @@ export const StudentPortal: React.FC = () => {
     (s) => s.homeworkGiven || s.homeworkTopicId || s.homeworkText
   );
 
+  const meetingUrl = currentStudent?.meetingLink?.trim() || 'https://meet.google.com';
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      {/* Student Selector Banner if multiple students exist */}
-      {students.length > 1 && (
+      {/* Student Selector Banner - only shown to Admin/Director/Teacher, never to the student himself */}
+      {!isStudentUser && students.length > 1 && (
         <div
           style={{
             background: 'var(--bg-card)',
@@ -52,7 +70,7 @@ export const StudentPortal: React.FC = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Sparkles size={18} color="var(--accent)" />
             <span style={{ fontWeight: 600, fontSize: '0.92rem' }}>
-              Select Student Profile:
+              Viewing Student Profile:
             </span>
           </div>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -105,7 +123,7 @@ export const StudentPortal: React.FC = () => {
             }}
           >
             <Sparkles size={12} />
-            STUDENT & PARENT ACADEMY DESK
+            STUDENT & PARENT ACADEMY DESK • {activeMonth}
           </span>
           <h2 style={{ fontSize: '1.8rem', fontWeight: 800, fontFamily: 'var(--font-serif)' }}>
             Welcome back, {currentStudent?.name || 'Student'}!
@@ -113,33 +131,38 @@ export const StudentPortal: React.FC = () => {
           <p style={{ color: 'rgba(255, 255, 255, 0.85)', fontSize: '0.95rem', marginTop: '6px' }}>
             Assigned Teacher: <strong>{teacher?.name || 'Ustadha'}</strong> • Schedule: {currentStudent?.scheduleTime || '5:00 PM'} (
             {(currentStudent?.scheduleDays || [1, 3, 5])
-              .map((d) => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d])
+              .map((d: number) => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d])
               .join(', ')}
             )
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
           <a
-            href="https://meet.google.com"
+            href={meetingUrl}
             target="_blank"
             rel="noreferrer"
             className="btn"
             style={{
-              background: 'var(--gold)',
-              color: 'var(--primary)',
-              fontWeight: 700,
-              borderRadius: 'var(--radius-md)',
+              background: 'var(--gold, #D4A348)',
+              color: 'var(--primary, #0C3E35)',
+              fontWeight: 800,
+              borderRadius: 'var(--radius-md, 10px)',
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              padding: '12px 20px',
+              padding: '12px 22px',
               textDecoration: 'none',
+              boxShadow: '0 4px 14px rgba(212, 163, 72, 0.35)',
+              fontSize: '0.95rem',
             }}
           >
-            <Video size={16} />
-            Join Live Class Room
+            <Video size={18} />
+            <span>Join Live Class Room</span>
           </a>
+          <span style={{ fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.75)' }}>
+            {currentStudent?.meetingLink ? '✓ Dedicated room link assigned' : 'Standard live classroom'}
+          </span>
         </div>
       </div>
 

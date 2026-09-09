@@ -13,6 +13,9 @@ import {
   X,
   ArrowRightLeft,
   Sparkles,
+  Video,
+  ExternalLink,
+  Lock,
 } from 'lucide-react';
 
 export const StudentManagement: React.FC = () => {
@@ -24,11 +27,29 @@ export const StudentManagement: React.FC = () => {
 
   // Form states for Add Student
   const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('');
+  const [meetingLink, setMeetingLink] = useState('');
   const [teacherId, setTeacherId] = useState(teachers[0]?.id || '');
   const [durationMinutes, setDurationMinutes] = useState(45);
   const [startDate, setStartDate] = useState('2026-09-01');
   const [scheduleDays, setScheduleDays] = useState<number[]>([1, 3, 5]); // Mon, Wed, Fri
   const [scheduleTime, setScheduleTime] = useState('5:00 PM');
+
+  // Edit modal state
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [editPassword, setEditPassword] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [editMeetingLink, setEditMeetingLink] = useState('');
+  const [editTeacherId, setEditTeacherId] = useState('');
+  const [editDuration, setEditDuration] = useState(45);
+  const [editStartDate, setEditStartDate] = useState('2026-09-01');
+  const [editDays, setEditDays] = useState<number[]>([1, 3, 5]);
+  const [editTime, setEditTime] = useState('5:00 PM');
+  const [editStatus, setEditStatus] = useState<'Active' | 'Inactive'>('Active');
 
   // Reassignment form state
   const [newTeacherId, setNewTeacherId] = useState('');
@@ -51,6 +72,14 @@ export const StudentManagement: React.FC = () => {
     }
   };
 
+  const handleToggleEditDay = (dayVal: number) => {
+    if (editDays.includes(dayVal)) {
+      setEditDays(editDays.filter((d) => d !== dayVal));
+    } else {
+      setEditDays([...editDays, dayVal].sort());
+    }
+  };
+
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
@@ -62,11 +91,55 @@ export const StudentManagement: React.FC = () => {
       startDate,
       scheduleDays,
       scheduleTime,
+      email: email.trim() || undefined,
+      password: password.trim() || undefined,
+      phone: phone.trim() || undefined,
+      meetingLink: meetingLink.trim() || undefined,
     });
 
     // Reset & close
     setName('');
+    setEmail('');
+    setPassword('');
+    setPhone('');
+    setMeetingLink('');
     setIsAddModalOpen(false);
+  };
+
+  const handleEditOpen = (student: Student) => {
+    setEditingStudent(student);
+    setEditName(student.name);
+    setEditEmail(student.email || '');
+    setEditPassword(student.password || '');
+    setEditPhone(student.phone || '');
+    setEditMeetingLink(student.meetingLink || '');
+    setEditTeacherId(student.teacherId);
+    setEditDuration(student.durationMinutes);
+    setEditStartDate(student.startDate || '2026-09-01');
+    setEditDays(student.scheduleDays || [1, 3, 5]);
+    setEditTime(student.scheduleTime);
+    setEditStatus(student.status);
+  };
+
+  const handleEditSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingStudent || !editName.trim()) return;
+
+    updateStudent(editingStudent.id, {
+      name: editName.trim(),
+      email: editEmail.trim() || undefined,
+      password: editPassword.trim() || undefined,
+      phone: editPhone.trim() || undefined,
+      meetingLink: editMeetingLink.trim() || undefined,
+      teacherId: editTeacherId,
+      durationMinutes: editDuration,
+      startDate: editStartDate,
+      scheduleDays: editDays,
+      scheduleTime: editTime.trim(),
+      status: editStatus,
+    });
+
+    setEditingStudent(null);
   };
 
   const handleReassignSubmit = (e: React.FormEvent) => {
@@ -111,12 +184,12 @@ export const StudentManagement: React.FC = () => {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Student</th>
+                <th>Student & Login</th>
                 <th>Assigned Teacher</th>
-                <th>Class Duration</th>
+                <th>Duration</th>
                 <th>Start Date</th>
-                <th>Weekly Schedule</th>
-                <th>Time</th>
+                <th>Weekly Schedule & Time</th>
+                <th>Meeting Link</th>
                 <th>Status</th>
                 <th style={{ textAlign: 'right' }}>Actions</th>
               </tr>
@@ -147,8 +220,16 @@ export const StudentManagement: React.FC = () => {
                   const teacher = teachers.find((t) => t.id === student.teacherId);
                   return (
                     <tr key={student.id}>
-                      <td style={{ fontWeight: 700, color: 'var(--text-main)', fontSize: '0.95rem' }}>
-                        {student.name}
+                      <td>
+                        <div style={{ fontWeight: 700, color: 'var(--text-main)', fontSize: '0.95rem' }}>
+                          {student.name}
+                        </div>
+                        {student.email && (
+                          <div style={{ fontSize: '0.75rem', color: '#64748B', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+                            <Lock size={11} color="#94A3B8" />
+                            <span>{student.email}</span>
+                          </div>
+                        )}
                       </td>
                       <td>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -159,36 +240,77 @@ export const StudentManagement: React.FC = () => {
                       <td>{student.durationMinutes} mins</td>
                       <td style={{ color: 'var(--text-muted)' }}>{student.startDate}</td>
                       <td>
-                        <span
-                          style={{
-                            background: 'var(--primary-light)',
-                            color: 'var(--primary)',
-                            padding: '3px 8px',
-                            borderRadius: '6px',
-                            fontSize: '0.78rem',
-                            fontWeight: 600,
-                          }}
-                        >
-                          {getDaysFormatted(student.scheduleDays)}
-                        </span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                          <span
+                            style={{
+                              background: 'var(--primary-light)',
+                              color: 'var(--primary)',
+                              padding: '2px 6px',
+                              borderRadius: '4px',
+                              fontSize: '0.75rem',
+                              fontWeight: 600,
+                              display: 'inline-block',
+                              width: 'fit-content',
+                            }}
+                          >
+                            {getDaysFormatted(student.scheduleDays)}
+                          </span>
+                          <span style={{ fontWeight: 600, color: 'var(--accent)', fontSize: '0.82rem' }}>
+                            {student.scheduleTime}
+                          </span>
+                        </div>
                       </td>
-                      <td style={{ fontWeight: 600, color: 'var(--accent)' }}>{student.scheduleTime}</td>
+                      <td>
+                        {student.meetingLink ? (
+                          <a
+                            href={student.meetingLink}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              padding: '3px 8px',
+                              borderRadius: '6px',
+                              background: '#ECFDF5',
+                              color: '#065F46',
+                              fontSize: '0.75rem',
+                              fontWeight: 600,
+                              textDecoration: 'none',
+                            }}
+                          >
+                            <Video size={12} />
+                            <span>Meeting Room</span>
+                            <ExternalLink size={10} />
+                          </a>
+                        ) : (
+                          <span style={{ color: '#94A3B8', fontSize: '0.75rem' }}>No link</span>
+                        )}
+                      </td>
                       <td>
                         <span
                           style={{
                             fontSize: '0.75rem',
                             padding: '2px 8px',
                             borderRadius: '999px',
-                            background: '#ECFDF5',
-                            color: '#065F46',
+                            background: student.status === 'Active' ? '#ECFDF5' : '#F1F5F9',
+                            color: student.status === 'Active' ? '#065F46' : '#64748B',
                             fontWeight: 600,
                           }}
                         >
-                          Active
+                          {student.status || 'Active'}
                         </span>
                       </td>
                       <td style={{ textAlign: 'right' }}>
                         <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+                          <button
+                            className="btn btn-outline btn-sm"
+                            onClick={() => handleEditOpen(student)}
+                            title="Edit student details fully"
+                          >
+                            <Edit2 size={13} />
+                            <span>Edit</span>
+                          </button>
                           <button
                             className="btn btn-outline btn-sm"
                             onClick={() => {
@@ -196,10 +318,9 @@ export const StudentManagement: React.FC = () => {
                               setNewTeacherId(student.teacherId);
                               setIsReassignModalOpen(true);
                             }}
-                            title="Reassign to another teacher while preserving history"
+                            title="Reassign to another teacher"
                           >
                             <ArrowRightLeft size={13} />
-                            <span>Reassign</span>
                           </button>
                           <button
                             className="btn btn-outline btn-sm"
@@ -226,30 +347,78 @@ export const StudentManagement: React.FC = () => {
       {/* Add Student Modal */}
       {isAddModalOpen && (
         <div className="modal-overlay" onClick={() => setIsAddModalOpen(false)}>
-          <div className="modal-container" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-container" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '540px' }}>
             <div className="modal-header">
-              <h3 className="modal-title">Add Student</h3>
+              <h3 className="modal-title">Enrol New Student & Configure Schedule</h3>
               <button className="modal-close" onClick={() => setIsAddModalOpen(false)}>
                 <X size={20} />
               </button>
             </div>
 
             <form onSubmit={handleAddSubmit}>
-              <div className="modal-body">
+              <div className="modal-body" style={{ maxHeight: '72vh', overflowY: 'auto' }}>
                 <div className="form-group">
-                  <label className="form-label">Student Name</label>
+                  <label className="form-label">Student Name *</label>
                   <input
                     type="text"
                     className="form-input"
-                    placeholder="e.g. Nawaf"
+                    placeholder="e.g. Nawaf Al-Qahtani"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
                   />
                 </div>
 
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div className="form-group">
+                    <label className="form-label">Student / Parent Login Email</label>
+                    <input
+                      type="email"
+                      className="form-input"
+                      placeholder="student@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Student Portal Password</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="e.g. student123"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div className="form-group">
+                    <label className="form-label">Class Meeting Link (Zoom, Meet, Teams)</label>
+                    <input
+                      type="url"
+                      className="form-input"
+                      placeholder="https://meet.google.com/abc-defg-hij"
+                      value={meetingLink}
+                      onChange={(e) => setMeetingLink(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Phone Number (Optional)</label>
+                    <input
+                      type="tel"
+                      className="form-input"
+                      placeholder="+966 50 123 4567"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                    />
+                  </div>
+                </div>
+
                 <div className="form-group">
-                  <label className="form-label">Teacher</label>
+                  <label className="form-label">Assign Teacher</label>
                   <select
                     className="form-select"
                     value={teacherId}
@@ -343,6 +512,191 @@ export const StudentManagement: React.FC = () => {
                 <button type="submit" className="btn btn-primary">
                   <Check size={16} />
                   <span>Save & Generate Classes</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Student Modal */}
+      {editingStudent && (
+        <div className="modal-overlay" onClick={() => setEditingStudent(null)}>
+          <div className="modal-container" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '540px' }}>
+            <div className="modal-header">
+              <h3 className="modal-title">Edit Student & Meeting Link</h3>
+              <button className="modal-close" onClick={() => setEditingStudent(null)}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleEditSubmit}>
+              <div className="modal-body" style={{ maxHeight: '72vh', overflowY: 'auto' }}>
+                <div className="form-group">
+                  <label className="form-label">Student Name *</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div className="form-group">
+                    <label className="form-label">Student / Parent Login Email</label>
+                    <input
+                      type="email"
+                      className="form-input"
+                      placeholder="student@example.com"
+                      value={editEmail}
+                      onChange={(e) => setEditEmail(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Student Portal Password</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="e.g. student123"
+                      value={editPassword}
+                      onChange={(e) => setEditPassword(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div className="form-group">
+                    <label className="form-label">Class Meeting Link (Zoom, Meet, Teams)</label>
+                    <input
+                      type="url"
+                      className="form-input"
+                      placeholder="https://meet.google.com/abc-defg-hij"
+                      value={editMeetingLink}
+                      onChange={(e) => setEditMeetingLink(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Phone Number (Optional)</label>
+                    <input
+                      type="tel"
+                      className="form-input"
+                      placeholder="+966 50 123 4567"
+                      value={editPhone}
+                      onChange={(e) => setEditPhone(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div className="form-group">
+                    <label className="form-label">Assign Teacher</label>
+                    <select
+                      className="form-select"
+                      value={editTeacherId}
+                      onChange={(e) => setEditTeacherId(e.target.value)}
+                    >
+                      {teachers.map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.name} ({t.status})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Status</label>
+                    <select
+                      className="form-select"
+                      value={editStatus}
+                      onChange={(e) => setEditStatus(e.target.value as any)}
+                    >
+                      <option value="Active">Active</option>
+                      <option value="Inactive">Inactive</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                  <div className="form-group">
+                    <label className="form-label">Class Duration</label>
+                    <select
+                      className="form-select"
+                      value={editDuration}
+                      onChange={(e) => setEditDuration(Number(e.target.value))}
+                    >
+                      <option value={30}>30 minutes</option>
+                      <option value={40}>40 minutes (Demo)</option>
+                      <option value={45}>45 minutes</option>
+                      <option value={60}>60 minutes</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Start Date</label>
+                    <input
+                      type="date"
+                      className="form-input"
+                      value={editStartDate}
+                      onChange={(e) => setEditStartDate(e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Schedule Days */}
+                <div className="form-group">
+                  <label className="form-label">Weekly Schedule</label>
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '8px' }}>
+                    {dayOptions.map((day) => {
+                      const isChecked = editDays.includes(day.value);
+                      return (
+                        <button
+                          key={day.value}
+                          type="button"
+                          onClick={() => handleToggleEditDay(day.value)}
+                          style={{
+                            flex: '1 0 42px',
+                            padding: '8px 4px',
+                            borderRadius: '8px',
+                            border: `1.5px solid ${isChecked ? 'var(--primary)' : 'var(--border-color)'}`,
+                            background: isChecked ? 'var(--primary-light)' : '#FFFFFF',
+                            color: isChecked ? 'var(--primary)' : 'var(--text-main)',
+                            fontWeight: isChecked ? 700 : 500,
+                            cursor: 'pointer',
+                            fontSize: '0.85rem',
+                          }}
+                        >
+                          {day.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label className="form-label">Time</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="e.g. 5:00 PM"
+                    value={editTime}
+                    onChange={(e) => setEditTime(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button type="button" className="btn btn-outline" onClick={() => setEditingStudent(null)}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  <Check size={16} />
+                  <span>Update Student & Sync</span>
                 </button>
               </div>
             </form>

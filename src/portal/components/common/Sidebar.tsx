@@ -15,6 +15,7 @@ import {
   X,
   LogOut,
   ArrowLeft,
+  Layers,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -106,10 +107,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpe
                 <span>Teachers</span>
               </button>
               <button
+                className={`nav-item ${activeTab === 'courses' ? 'active' : ''}`}
+                onClick={() => handleNavClick('courses')}
+              >
+                <BookOpen size={18} />
+                <span>Courses & Curriculum</span>
+              </button>
+              <button
                 className={`nav-item ${activeTab === 'homework' ? 'active' : ''}`}
                 onClick={() => handleNavClick('homework')}
               >
-                <BookOpen size={18} />
+                <Layers size={18} />
                 <span>Homework Topics</span>
               </button>
               <button

@@ -54,7 +54,26 @@ export interface Student {
   scheduleTime: string; // e.g. "5:00 PM"
   status: 'Active' | 'Inactive';
   email?: string | undefined;
+  password?: string | undefined;
+  phone?: string | undefined;
+  meetingLink?: string | undefined; // Persistent Zoom, Google Meet, or Teams URL
   notes?: string | undefined;
+}
+
+export interface CourseItem {
+  id: string;
+  orgId: string;
+  slug: string;
+  title: string;
+  description: string;
+  level: 'Beginner' | 'Intermediate' | 'Advanced' | 'All Levels';
+  category: string;
+  price: number;
+  lessonsCount: number;
+  duration: string;
+  thumbnailUrl?: string | undefined;
+  outcomes: string[];
+  status: 'Published' | 'Draft';
 }
 
 export interface HomeworkTopic {

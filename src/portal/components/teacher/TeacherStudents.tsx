@@ -16,6 +16,10 @@ import {
   Mail,
   FileText,
   AlertTriangle,
+  Video,
+  Lock,
+  Link2,
+  ExternalLink,
 } from 'lucide-react';
 
 export const TeacherStudents: React.FC = () => {
@@ -26,6 +30,9 @@ export const TeacherStudents: React.FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [addName, setAddName] = useState('');
   const [addEmail, setAddEmail] = useState('');
+  const [addPassword, setAddPassword] = useState('');
+  const [addPhone, setAddPhone] = useState('');
+  const [addMeetingLink, setAddMeetingLink] = useState('');
   const [addDuration, setAddDuration] = useState<number>(45);
   const [addTime, setAddTime] = useState('5:00 PM');
   const [addDays, setAddDays] = useState<number[]>([1, 3, 5]);
@@ -36,6 +43,9 @@ export const TeacherStudents: React.FC = () => {
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [editName, setEditName] = useState('');
   const [editEmail, setEditEmail] = useState('');
+  const [editPassword, setEditPassword] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [editMeetingLink, setEditMeetingLink] = useState('');
   const [editDuration, setEditDuration] = useState<number>(45);
   const [editTime, setEditTime] = useState('5:00 PM');
   const [editDays, setEditDays] = useState<number[]>([1, 3, 5]);
@@ -71,6 +81,9 @@ export const TeacherStudents: React.FC = () => {
     setEditingStudent(student);
     setEditName(student.name);
     setEditEmail(student.email || '');
+    setEditPassword(student.password || '');
+    setEditPhone(student.phone || '');
+    setEditMeetingLink(student.meetingLink || '');
     setEditDuration(student.durationMinutes);
     setEditTime(student.scheduleTime);
     setEditDays(student.scheduleDays || [1, 3, 5]);
@@ -88,6 +101,9 @@ export const TeacherStudents: React.FC = () => {
     const updates: Partial<Student> = {
       name: editName.trim(),
       email: editEmail.trim() || undefined,
+      password: editPassword.trim() || undefined,
+      phone: editPhone.trim() || undefined,
+      meetingLink: editMeetingLink.trim() || undefined,
       durationMinutes: editDuration,
       scheduleTime: editTime.trim(),
       scheduleDays: editDays,
@@ -123,11 +139,19 @@ export const TeacherStudents: React.FC = () => {
       startDate: addStartDate,
       scheduleDays: addDays,
       scheduleTime: addTime.trim(),
+      email: addEmail.trim() || undefined,
+      password: addPassword.trim() || undefined,
+      phone: addPhone.trim() || undefined,
+      meetingLink: addMeetingLink.trim() || undefined,
+      notes: addNotes.trim() || undefined,
     });
 
     // Reset and close
     setAddName('');
     setAddEmail('');
+    setAddPassword('');
+    setAddPhone('');
+    setAddMeetingLink('');
     setAddNotes('');
     setIsAddModalOpen(false);
   };
@@ -291,6 +315,32 @@ export const TeacherStudents: React.FC = () => {
                       </strong>
                     </span>
                   </div>
+                  {student.meetingLink && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px' }}>
+                      <Video size={14} color="#10B981" />
+                      <a
+                        href={student.meetingLink}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                          fontSize: '0.8rem',
+                          fontWeight: 600,
+                          color: '#065F46',
+                          background: '#ECFDF5',
+                          padding: '2px 8px',
+                          borderRadius: '6px',
+                          textDecoration: 'none',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                        }}
+                      >
+                        <span>Join Meeting Link</span>
+                        <ExternalLink size={11} />
+                      </a>
+                    </div>
+                  )}
                   {student.notes && (
                     <div style={{ marginTop: '6px', fontSize: '0.8rem', color: '#475569', fontStyle: 'italic', background: '#F8FAFC', padding: '4px 8px', borderRadius: '6px' }}>
                       Note: {student.notes}
@@ -330,16 +380,35 @@ export const TeacherStudents: React.FC = () => {
                 <BookOpen size={20} color="var(--accent)" />
                 Learning History & Completed Sessions: {selectedStudent.name}
               </div>
-              <div className="card-subtitle">
-                Scheduled days: {(selectedStudent.scheduleDays || [1, 3, 5]).map((d) => dayNames[d]).join(', ')} at {selectedStudent.scheduleTime}
+              <div className="card-subtitle" style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap', marginTop: '4px' }}>
+                <span>Scheduled: {(selectedStudent.scheduleDays || [1, 3, 5]).map((d) => dayNames[d]).join(', ')} at {selectedStudent.scheduleTime}</span>
+                {selectedStudent.email && (
+                  <span style={{ background: '#F1F5F9', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', color: '#475569' }}>
+                    Login: <strong>{selectedStudent.email}</strong> {selectedStudent.password ? `(Pass: ${selectedStudent.password})` : ''}
+                  </span>
+                )}
               </div>
             </div>
-            <button
-              className="btn btn-outline btn-sm"
-              onClick={() => setSelectedStudent(null)}
-            >
-              Close Ledger
-            </button>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              {selectedStudent.meetingLink && (
+                <a
+                  href={selectedStudent.meetingLink}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn btn-sm btn-primary"
+                  style={{ gap: '6px', textDecoration: 'none', background: '#10B981', borderColor: '#10B981', color: '#FFFFFF' }}
+                >
+                  <Video size={14} />
+                  <span>Start Live Class Room</span>
+                </a>
+              )}
+              <button
+                className="btn btn-outline btn-sm"
+                onClick={() => setSelectedStudent(null)}
+              >
+                Close Ledger
+              </button>
+            </div>
           </div>
 
           <div className="table-container">
@@ -433,15 +502,52 @@ export const TeacherStudents: React.FC = () => {
                   />
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Parent / Student Contact (Email or Phone)</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    placeholder="e.g. parent@example.com or +966..."
-                    value={editEmail}
-                    onChange={(e) => setEditEmail(e.target.value)}
-                  />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div className="form-group">
+                    <label className="form-label">Student / Parent Email (for login)</label>
+                    <input
+                      type="email"
+                      className="form-input"
+                      placeholder="student@example.com"
+                      value={editEmail}
+                      onChange={(e) => setEditEmail(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Student Login Password</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="e.g. student123"
+                      value={editPassword}
+                      onChange={(e) => setEditPassword(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div className="form-group">
+                    <label className="form-label">Class Meeting Link (Zoom, Meet, Teams)</label>
+                    <input
+                      type="url"
+                      className="form-input"
+                      placeholder="https://meet.google.com/abc-defg-hij"
+                      value={editMeetingLink}
+                      onChange={(e) => setEditMeetingLink(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Phone Number (Optional)</label>
+                    <input
+                      type="tel"
+                      className="form-input"
+                      placeholder="+966 50 123 4567"
+                      value={editPhone}
+                      onChange={(e) => setEditPhone(e.target.value)}
+                    />
+                  </div>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
@@ -615,15 +721,52 @@ export const TeacherStudents: React.FC = () => {
                   />
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Parent / Student Contact (Email or Phone)</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    placeholder="e.g. parent@example.com or +966..."
-                    value={addEmail}
-                    onChange={(e) => setAddEmail(e.target.value)}
-                  />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div className="form-group">
+                    <label className="form-label">Student / Parent Email (for login)</label>
+                    <input
+                      type="email"
+                      className="form-input"
+                      placeholder="student@example.com"
+                      value={addEmail}
+                      onChange={(e) => setAddEmail(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Student Login Password</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="e.g. student123"
+                      value={addPassword}
+                      onChange={(e) => setAddPassword(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div className="form-group">
+                    <label className="form-label">Class Meeting Link (Zoom, Meet, Teams)</label>
+                    <input
+                      type="url"
+                      className="form-input"
+                      placeholder="https://meet.google.com/abc-defg-hij"
+                      value={addMeetingLink}
+                      onChange={(e) => setAddMeetingLink(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Phone Number (Optional)</label>
+                    <input
+                      type="tel"
+                      className="form-input"
+                      placeholder="+966 50 123 4567"
+                      value={addPhone}
+                      onChange={(e) => setAddPhone(e.target.value)}
+                    />
+                  </div>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>

@@ -7,7 +7,8 @@ import {
   HomeworkTopic,
   ClassSession,
   ClassStatus,
-  TeacherPerformance
+  TeacherPerformance,
+  CourseItem,
 } from '../types';
 import {
   initialOrganizations,
@@ -15,6 +16,7 @@ import {
   initialTeachers,
   initialStudents,
   initialHomeworkTopics,
+  initialCourses,
   generateSeptember2026Classes,
 } from '../lib/mockData';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
@@ -26,6 +28,7 @@ interface AppContextType {
   teachers: Teacher[];
   students: Student[];
   homeworkTopics: HomeworkTopic[];
+  courses: CourseItem[];
   sessions: ClassSession[];
   activeMonth: string;
   isSupabaseActive: boolean;
@@ -54,6 +57,11 @@ interface AppContextType {
     startDate: string;
     scheduleDays: number[];
     scheduleTime: string;
+    email?: string | undefined;
+    password?: string | undefined;
+    phone?: string | undefined;
+    meetingLink?: string | undefined;
+    notes?: string | undefined;
   }) => void;
   updateStudent: (id: string, updates: Partial<Student>) => void;
   deleteStudent: (id: string) => void;
@@ -64,6 +72,10 @@ interface AppContextType {
   deleteTeacher: (id: string) => void;
   addHomeworkTopic: (title: string) => void;
   deleteHomeworkTopic: (id: string) => void;
+  addCourse: (data: Omit<CourseItem, 'id' | 'orgId'>) => void;
+  updateCourse: (id: string, updates: Partial<CourseItem>) => void;
+  deleteCourse: (id: string) => void;
+  syncStudentClassesForMonth: (monthStr: string) => void;
   // Computed stats
   monthlyStats: {
     teachersCount: number;
@@ -167,6 +179,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [homeworkTopics, setHomeworkTopics] = useState<HomeworkTopic[]>(() => {
     const saved = getStorageItem(`${STORAGE_KEY}_topics`);
     return saved ? JSON.parse(saved) : initialHomeworkTopics;
+  });
+
+  const [courses, setCourses] = useState<CourseItem[]>(() => {
+    const saved = getStorageItem(`${STORAGE_KEY}_courses`);
+    return saved ? JSON.parse(saved) : initialCourses;
   });
 
   const [sessions, setSessions] = useState<ClassSession[]>(() => {
@@ -290,6 +307,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [homeworkTopics]);
 
   useEffect(() => {
+    setStorageItem(`${STORAGE_KEY}_courses`, JSON.stringify(courses));
+  }, [courses]);
+
+  useEffect(() => {
     setStorageItem(`${STORAGE_KEY}_sessions`, JSON.stringify(sessions));
   }, [sessions]);
 
@@ -387,9 +408,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return { success: true };
     }
 
+    // 3. Check Student accounts
+    const foundStudent = students.find((s) => s.email && s.email.toLowerCase() === cleanEmail);
+    if (foundStudent) {
+      if (foundStudent.password && foundStudent.password !== cleanPassword) {
+        return { success: false, message: 'Invalid student password. Please verify with your teacher or academy manager.' };
+      }
+      const studentProfile: UserProfile = {
+        id: `usr-${foundStudent.id}`,
+        orgId: foundStudent.orgId,
+        role: 'student',
+        name: foundStudent.name,
+        email: foundStudent.email!,
+        phone: foundStudent.phone,
+      };
+      setCurrentUser(studentProfile);
+      setCurrentOrgId(foundStudent.orgId);
+      return { success: true };
+    }
+
     return {
       success: false,
-      message: 'No registered account found with this email. New managers can sign up below.',
+      message: 'No registered account found with this email. Please check your credentials.',
     };
   };
 
@@ -566,21 +606,54 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     startDate: string;
     scheduleDays: number[];
     scheduleTime: string;
+    email?: string | undefined;
+    password?: string | undefined;
+    phone?: string | undefined;
+    meetingLink?: string | undefined;
+    notes?: string | undefined;
   }) => {
     const studentId = `stu-${Date.now()}`;
+    const cleanEmail = data.email?.trim() || undefined;
+    const cleanPassword = data.password?.trim() || undefined;
+    const cleanPhone = data.phone?.trim() || undefined;
+    const cleanMeetingLink = data.meetingLink?.trim() || undefined;
+    const cleanNotes = data.notes?.trim() || undefined;
+
     const newStudent: Student = {
       id: studentId,
       orgId: currentOrgId,
-      name: data.name,
+      name: data.name.trim(),
       teacherId: data.teacherId,
       durationMinutes: data.durationMinutes,
       startDate: data.startDate,
       scheduleDays: data.scheduleDays,
       scheduleTime: data.scheduleTime,
       status: 'Active',
+      email: cleanEmail,
+      password: cleanPassword,
+      phone: cleanPhone,
+      meetingLink: cleanMeetingLink,
+      notes: cleanNotes,
     };
 
     setStudents((prev) => [...prev, newStudent]);
+
+    // Also register a UserProfile with role 'student' for instant login
+    if (cleanEmail && cleanPassword) {
+      const studentProfile: UserProfile = {
+        id: `usr-${studentId}`,
+        orgId: currentOrgId,
+        role: 'student',
+        name: data.name.trim(),
+        email: cleanEmail.toLowerCase(),
+        password: cleanPassword,
+        phone: cleanPhone || '',
+      };
+      setProfiles((prev) => [
+        ...prev.filter((p) => p.email.toLowerCase() !== cleanEmail.toLowerCase()),
+        studentProfile,
+      ]);
+    }
 
     // Generate recurring class dates for active month
     const [yearStr = '2026', monthStr = '09'] = activeMonth.split('-');
@@ -649,23 +722,92 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateStudent = async (id: string, updates: Partial<Student>) => {
+    const targetStudent = students.find((s) => s.id === id);
     setStudents((prev) => prev.map((s) => (s.id === id ? { ...s, ...updates } : s)));
 
-    // Propagate time and duration updates to upcoming/unrecorded class sessions
-    if (updates.scheduleTime || updates.durationMinutes) {
-      const todayStr = new Date().toISOString().split('T')[0] || '';
-      setSessions((prev) =>
-        prev.map((sess) => {
-          if (sess.studentId === id && (sess.status === 'not_recorded' || sess.scheduledDate >= todayStr)) {
-            return {
-              ...sess,
-              scheduledTime: updates.scheduleTime || sess.scheduledTime,
-              durationMinutes: updates.durationMinutes || sess.durationMinutes,
-            };
+    // Update associated profile if email, password, name, or phone was updated
+    if (targetStudent) {
+      const updatedEmail = (updates.email ?? targetStudent.email)?.trim().toLowerCase();
+      const updatedPassword = updates.password ?? targetStudent.password;
+      const updatedName = (updates.name ?? targetStudent.name)?.trim();
+      const updatedPhone = updates.phone ?? targetStudent.phone;
+
+      if (updatedEmail) {
+        setProfiles((prev) => {
+          const oldEmail = targetStudent.email?.toLowerCase();
+          const existing = prev.find((p) => (oldEmail && p.email.toLowerCase() === oldEmail) || p.id === `usr-${id}`);
+          if (existing) {
+            return prev.map((p) =>
+              p.id === existing.id
+                ? {
+                    ...p,
+                    email: updatedEmail,
+                    name: updatedName || p.name,
+                    password: updatedPassword || p.password,
+                    phone: updatedPhone || p.phone,
+                  }
+                : p
+            );
+          } else if (updatedPassword) {
+            return [
+              ...prev,
+              {
+                id: `usr-${id}`,
+                orgId: targetStudent.orgId,
+                role: 'student',
+                name: updatedName || 'Student',
+                email: updatedEmail,
+                password: updatedPassword,
+                phone: updatedPhone || '',
+              },
+            ];
           }
-          return sess;
-        })
-      );
+          return prev;
+        });
+      }
+
+      // Schedule sync: if scheduleDays, scheduleTime, or startDate changes, regenerate unrecorded classes
+      if (updates.scheduleDays || updates.scheduleTime || updates.startDate || updates.durationMinutes || updates.teacherId) {
+        const [yearStr = '2026', monthStr = '09'] = activeMonth.split('-');
+        const year = parseInt(yearStr, 10);
+        const month = parseInt(monthStr, 10) - 1;
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        const activeDays = updates.scheduleDays ?? targetStudent.scheduleDays ?? [1, 3, 5];
+        const activeTime = updates.scheduleTime ?? targetStudent.scheduleTime ?? '5:00 PM';
+        const activeDuration = updates.durationMinutes ?? targetStudent.durationMinutes ?? 45;
+        const activeTeacherId = updates.teacherId ?? targetStudent.teacherId;
+        const activeStart = updates.startDate ?? targetStudent.startDate ?? `${yearStr}-${monthStr}-01`;
+
+        setSessions((prev) => {
+          // Keep completed or recorded sessions
+          const recorded = prev.filter((sess) => sess.studentId !== id || sess.status !== 'not_recorded');
+          const generated: ClassSession[] = [];
+
+          for (let d = 1; d <= daysInMonth; d++) {
+            const dateObj = new Date(year, month, d);
+            const dayOfWeek = dateObj.getDay();
+            const dateStr = `${yearStr}-${monthStr}-${String(d).padStart(2, '0')}`;
+
+            if (dateStr >= activeStart && activeDays.includes(dayOfWeek)) {
+              if (!recorded.some((s) => s.studentId === id && s.scheduledDate === dateStr)) {
+                generated.push({
+                  id: `sess-${id}-${dateStr}`,
+                  orgId: currentOrgId,
+                  studentId: id,
+                  teacherId: activeTeacherId,
+                  scheduledDate: dateStr,
+                  scheduledTime: activeTime,
+                  durationMinutes: activeDuration,
+                  status: 'not_recorded',
+                  homeworkGiven: false,
+                });
+              }
+            }
+          }
+          return [...recorded, ...generated];
+        });
+      }
     }
 
     if (isSupabaseConfigured && supabase) {
@@ -675,6 +817,67 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         console.error('Supabase update student error:', e);
       }
     }
+  };
+
+  // Synchronize student classes for a specified month
+  const syncStudentClassesForMonth = (monthStr: string) => {
+    const parts = monthStr.split('-');
+    const yearStr = parts[0] ?? '2026';
+    const mStr = parts[1] ?? '09';
+    const year = parseInt(yearStr, 10);
+    const month = parseInt(mStr, 10) - 1;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    setSessions((prev) => {
+      const newGenerated: ClassSession[] = [];
+      for (const student of students) {
+        if (student.status !== 'Active') continue;
+        const studentDays = student.scheduleDays || [1, 3, 5];
+        const studentStart = student.startDate || `${yearStr}-${mStr}-01`;
+
+        for (let d = 1; d <= daysInMonth; d++) {
+          const dateObj = new Date(year, month, d);
+          const dayOfWeek = dateObj.getDay();
+          const dateStr = `${yearStr}-${mStr}-${String(d).padStart(2, '0')}`;
+
+          if (dateStr >= studentStart && studentDays.includes(dayOfWeek)) {
+            const alreadyExists = prev.some((s) => s.studentId === student.id && s.scheduledDate === dateStr);
+            if (!alreadyExists) {
+              newGenerated.push({
+                id: `sess-${student.id}-${dateStr}`,
+                orgId: currentOrgId,
+                studentId: student.id,
+                teacherId: student.teacherId,
+                scheduledDate: dateStr,
+                scheduledTime: student.scheduleTime || '5:00 PM',
+                durationMinutes: student.durationMinutes || 45,
+                status: 'not_recorded',
+                homeworkGiven: false,
+              });
+            }
+          }
+        }
+      }
+      return newGenerated.length > 0 ? [...prev, ...newGenerated] : prev;
+    });
+  };
+
+  // Courses Management
+  const addCourse = (data: Omit<CourseItem, 'id' | 'orgId'>) => {
+    const newCourse: CourseItem = {
+      ...data,
+      id: `course-${Date.now()}`,
+      orgId: currentOrgId,
+    };
+    setCourses((prev) => [newCourse, ...prev]);
+  };
+
+  const updateCourse = (id: string, updates: Partial<CourseItem>) => {
+    setCourses((prev) => prev.map((c) => (c.id === id ? { ...c, ...updates } : c)));
+  };
+
+  const deleteCourse = (id: string) => {
+    setCourses((prev) => prev.filter((c) => c.id !== id));
   };
 
   const deleteStudent = async (id: string) => {
@@ -1026,10 +1229,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         teachers,
         students,
         homeworkTopics,
+        courses,
         sessions,
         activeMonth,
         isSupabaseActive: isSupabaseConfigured,
-        setActiveMonth,
+        setActiveMonth: (month: string) => {
+          setActiveMonth(month);
+          syncStudentClassesForMonth(month);
+        },
         login,
         signupManager,
         logout,
@@ -1048,6 +1255,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         deleteTeacher,
         addHomeworkTopic,
         deleteHomeworkTopic,
+        addCourse,
+        updateCourse,
+        deleteCourse,
+        syncStudentClassesForMonth,
         monthlyStats,
         teacherPerformance,
         todayClasses,

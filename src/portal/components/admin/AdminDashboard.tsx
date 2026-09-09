@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ClassSession } from '../../types';
 import { ClassDetailModal } from '../common/ClassDetailModal';
@@ -24,6 +24,25 @@ interface AdminDashboardProps {
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateTab }) => {
   const { monthlyStats, todayClasses, students, teachers, activeMonth, currentOrg } = useApp();
   const [selectedSession, setSelectedSession] = useState<ClassSession | null>(null);
+
+  const todayFormatted = useMemo(() => {
+    return new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  }, []);
+
+  // Guarantee strictly 1 upcoming/today class per student
+  const displayClasses = useMemo(() => {
+    const seen = new Set<string>();
+    return todayClasses.filter((sess) => {
+      if (seen.has(sess.studentId)) return false;
+      seen.add(sess.studentId);
+      return true;
+    });
+  }, [todayClasses]);
 
   const getStatusBadge = (status: string, time: string) => {
     switch (status) {
@@ -182,7 +201,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateTab })
               Today's Classes
             </div>
             <div className="card-desc">
-              Tuesday, September 8, 2026 • Click any row to inspect complete student & homework details
+              {todayFormatted} • Click any row to inspect complete student & homework details
             </div>
           </div>
           {onNavigateTab && (
@@ -210,7 +229,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateTab })
               </tr>
             </thead>
             <tbody>
-              {todayClasses.length === 0 ? (
+              {displayClasses.length === 0 ? (
                 <tr>
                   <td colSpan={6} style={{ textAlign: 'center', padding: '36px', color: 'var(--text-muted)' }}>
                     <Clock size={28} color="var(--accent)" style={{ margin: '0 auto 8px auto', display: 'block' }} />
@@ -233,7 +252,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateTab })
                   </td>
                 </tr>
               ) : (
-                todayClasses.slice(0, 8).map((session) => {
+                displayClasses.slice(0, 8).map((session: ClassSession) => {
                   const student = students.find((s) => s.id === session.studentId);
                   const teacher = teachers.find((t) => t.id === session.teacherId);
                   return (
@@ -245,7 +264,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateTab })
                       <td style={{ fontWeight: 700, color: 'var(--primary)' }}>
                         {session.scheduledTime}
                       </td>
-                      <td style={{ fontWeight: 600 }}>{student?.name || 'Student'}</td>
+                      <td style={{ fontWeight: 600 }}>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                          <span>{student?.name || 'Student'}</span>
+                          {student?.courseTitle && (
+                            <span
+                              style={{
+                                fontSize: '0.75rem',
+                                color: 'var(--accent)',
+                                fontWeight: 600,
+                                marginTop: '2px',
+                              }}
+                            >
+                              {student.courseTitle}
+                            </span>
+                          )}
+                        </div>
+                      </td>
                       <td>
                         <span
                           style={{

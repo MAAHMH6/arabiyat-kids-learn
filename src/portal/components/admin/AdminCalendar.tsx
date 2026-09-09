@@ -204,7 +204,8 @@ export const AdminCalendar: React.FC = () => {
               if (!day.isCurrentMonth) {
                 return <div key={`pad-${idx}`} className="calendar-day-cell other-month" />;
               }
-              const isToday = day.dateStr === '2026-09-08';
+              const todayStr = new Date().toISOString().split('T')[0];
+              const isToday = day.dateStr === todayStr;
               return (
                 <div key={day.dateStr} className={`calendar-day-cell ${isToday ? 'today' : ''}`}>
                   <div

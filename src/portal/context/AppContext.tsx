@@ -190,7 +190,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [sessions, setSessions] = useState<ClassSession[]>(() => {
     const saved = getStorageItem(`${STORAGE_KEY}_sessions`);
-    return saved ? JSON.parse(saved) : generateSeptember2026Classes();
+    if (saved) {
+      try {
+        const parsed: ClassSession[] = JSON.parse(saved);
+        // Deduplicate any accidental duplicate sessions with same studentId + scheduledDate + scheduledTime
+        const uniqueMap = new Map<string, ClassSession>();
+        for (const s of parsed) {
+          const key = `${s.studentId}_${s.scheduledDate}_${s.scheduledTime}`;
+          if (!uniqueMap.has(key)) {
+            uniqueMap.set(key, s);
+          } else {
+            const existing = uniqueMap.get(key)!;
+            if (existing.status === 'not_recorded' && s.status !== 'not_recorded') {
+              uniqueMap.set(key, s);
+            }
+          }
+        }
+        return Array.from(uniqueMap.values());
+      } catch (_) {
+        return generateSeptember2026Classes();
+      }
+    }
+    return generateSeptember2026Classes();
   });
 
   // Supabase real data sync on mount
@@ -1281,13 +1302,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   }, [teachers, students, sessions, currentOrgId, activeMonth]);
 
-  // Computed: Today's classes
+  // Computed: Today's classes (strictly today's date, deduplicated so each student appears once)
   const todayClasses = useMemo(() => {
-    const todayDate = new Date().toISOString().split('T')[0];
-    return sessions
-      .filter((s) => s.orgId === currentOrgId && (s.scheduledDate === todayDate || s.scheduledDate === '2026-09-08'))
+    const realToday: string = new Date().toISOString().split('T')[0] ?? '2026-09-09';
+    const parts = realToday.split('-');
+    const dayStr = parts[2] ?? '09';
+    const targetDate = realToday.startsWith(activeMonth)
+      ? realToday
+      : `${activeMonth}-${dayStr}`;
+
+    const matching = sessions
+      .filter((s) => s.orgId === currentOrgId && s.scheduledDate === targetDate)
       .sort((a, b) => a.scheduledTime.localeCompare(b.scheduledTime));
-  }, [sessions, currentOrgId]);
+
+    // Deduplicate: guarantee only 1 class session per student for today's schedule
+    const seenStudentIds = new Set<string>();
+    const deduplicated: ClassSession[] = [];
+    for (const sess of matching) {
+      if (!seenStudentIds.has(sess.studentId)) {
+        seenStudentIds.add(sess.studentId);
+        deduplicated.push(sess);
+      }
+    }
+    return deduplicated;
+  }, [sessions, currentOrgId, activeMonth]);
 
   return (
     <AppContext.Provider

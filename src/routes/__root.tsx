@@ -11,6 +11,8 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { Toaster } from "../components/ui/sonner";
+import { AppProvider } from "@/portal/context/AppContext";
 
 function NotFoundComponent() {
   return (
@@ -77,21 +79,27 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Arabiyat Learn" },
+      { title: "ArabiyatLearn" },
       { name: "description", content: "Fun, practical Arabic lessons for English-speaking children." },
-      { name: "author", content: "Arabiyat Learn" },
-      { property: "og:title", content: "Arabiyat Learn" },
+      { name: "author", content: "ArabiyatLearn" },
+      { property: "og:title", content: "ArabiyatLearn" },
       { property: "og:description", content: "Fun, practical Arabic lessons for English-speaking children." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@arabiyatlearn" },
     ],
     links: [
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Noto+Naskh+Arabic:wght@400..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap",
+      },
       {
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.png", type: "image/png" },
     ],
   }),
   shellComponent: RootShell,
@@ -119,8 +127,11 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <AppProvider>
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Outlet />
+        <Toaster position="top-center" richColors />
+      </AppProvider>
     </QueryClientProvider>
   );
 }

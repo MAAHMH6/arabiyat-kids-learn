@@ -15,7 +15,7 @@ export function Logo({ className, compact = false }: { className?: string; compa
       {!compact && (
         <span className="leading-tight">
           <span className="block font-display text-lg font-bold tracking-tight text-primary md:text-xl">
-            Arabiyat Learn
+            ArabiyatLearn
           </span>
           <span className="block text-[0.65rem] font-medium uppercase tracking-[0.2em] text-muted-foreground">
             Learn • Speak • Grow

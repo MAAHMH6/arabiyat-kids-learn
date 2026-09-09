@@ -8,38 +8,63 @@ export function useAuth() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
-      setSession(s);
-      setUser(s?.user ?? null);
-    });
-
-    void supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setUser(data.session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => sub.subscription.unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    if (!user) {
+  const fetchRole = async (userId: string): Promise<boolean> => {
+    try {
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId);
+      const admin = (data ?? []).some((r) => r.role === "admin");
+      setIsAdmin(admin);
+      return admin;
+    } catch {
       setIsAdmin(false);
-      return;
+      return false;
     }
+  };
+
+  useEffect(() => {
     let cancelled = false;
-    void supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .then(({ data }) => {
-        if (!cancelled) setIsAdmin((data ?? []).some((r) => r.role === "admin"));
-      });
+
+    const init = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (cancelled) return;
+        setSession(data.session);
+        const currentUser = data.session?.user ?? null;
+        setUser(currentUser);
+
+        if (currentUser) {
+          await fetchRole(currentUser.id);
+        } else {
+          setIsAdmin(false);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    void init();
+
+    const { data: sub } = supabase.auth.onAuthStateChange(async (_event, s) => {
+      if (cancelled) return;
+      setSession(s);
+      const currentUser = s?.user ?? null;
+      setUser(currentUser);
+
+      if (currentUser) {
+        await fetchRole(currentUser.id);
+      } else {
+        setIsAdmin(false);
+      }
+      if (!cancelled) setLoading(false);
+    });
+
     return () => {
       cancelled = true;
+      sub.subscription.unsubscribe();
     };
-  }, [user]);
+  }, []);
 
   const signOut = async () => {
     await supabase.auth.signOut();

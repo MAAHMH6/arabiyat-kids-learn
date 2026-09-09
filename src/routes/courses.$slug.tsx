@@ -85,27 +85,31 @@ function CourseDetail() {
               height={800}
               className="h-44 w-full rounded-2xl object-cover"
             />
-            <p className="mt-5 font-display text-3xl font-bold text-primary">${course.price}</p>
-            <p className="text-xs text-muted-foreground">One-time payment · lifetime access</p>
             <Button asChild size="lg" className="mt-5 w-full rounded-xl bg-primary hover:bg-emerald">
               <Link to="/checkout/$slug" params={{ slug: course.slug }}>
-                Enroll Now
+                Enroll in Cohort · ${course.price}
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="mt-3 w-full rounded-xl">
-              <Link to="/learn/$slug" params={{ slug: course.slug }}>
-                Watch Free Lesson
+            <Button asChild variant="outline" size="lg" className="mt-3 w-full rounded-xl border-2 border-primary/20 text-primary font-bold hover:bg-primary/5">
+              <Link to="/contact">
+                Book a Free Demo Class
               </Link>
             </Button>
-            <ul className="mt-5 space-y-2 text-sm text-muted-foreground">
-              <li className="flex items-center gap-2">
-                <BadgeCheck className="h-4 w-4 text-emerald" /> Taught by {course.teacher}
+            <ul className="mt-5 space-y-2.5 text-sm text-muted-foreground border-t border-border/50 pt-4">
+              <li className="flex items-center gap-2 font-medium text-foreground/90">
+                <BadgeCheck className="h-4 w-4 text-emerald shrink-0" /> Live Interactive Video Classes with {course.teacher}
               </li>
               <li className="flex items-center gap-2">
-                <BadgeCheck className="h-4 w-4 text-emerald" /> Replay lessons anytime
+                <BadgeCheck className="h-4 w-4 text-emerald shrink-0" /> Micro-Groups (Max 5 Kids) or 1-on-1
               </li>
               <li className="flex items-center gap-2">
-                <BadgeCheck className="h-4 w-4 text-emerald" /> Parent progress tracking
+                <BadgeCheck className="h-4 w-4 text-emerald shrink-0" /> Weekly Audio Voice Note Corrections
+              </li>
+              <li className="flex items-center gap-2">
+                <BadgeCheck className="h-4 w-4 text-emerald shrink-0" /> Printable PDF Activity Sheets & Milestone Badge
+              </li>
+              <li className="flex items-center gap-2">
+                <BadgeCheck className="h-4 w-4 text-emerald shrink-0" /> Replay access for any missed lessons
               </li>
             </ul>
           </div>
@@ -161,8 +165,49 @@ function CourseDetail() {
           <Button asChild variant="outline" className="mt-5 rounded-xl">
             <Link to="/about">Meet the Teacher</Link>
           </Button>
+
+          <div className="mt-8 border-t border-border/60 pt-6">
+            <h3 className="font-display text-base font-bold text-primary">Need Placement Advice?</h3>
+            <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+              Not sure if this level is right for your child? Book a free 25-minute assessment demo with our teacher.
+            </p>
+            <Button asChild className="mt-4 w-full rounded-xl bg-primary text-primary-foreground hover:bg-emerald text-xs font-bold">
+              <Link to="/contact">Book Free Assessment</Link>
+            </Button>
+          </div>
         </aside>
       </div>
+
+      {/* NEW RICH SECTION: Live Classroom Guarantee */}
+      <section className="bg-sand/30 py-16 border-t border-border/50">
+        <div className="mx-auto max-w-7xl px-4">
+          <div className="rounded-3xl bg-card border border-border/70 p-8 md:p-12 shadow-soft">
+            <div className="grid gap-8 md:grid-cols-3">
+              <div>
+                <span className="text-2xl mb-2 inline-block">🎯</span>
+                <h4 className="font-display text-lg font-bold text-primary">Small Class Guarantee</h4>
+                <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                  Never more than 5 students per cohort. Your child will never sit muted or ignored in a massive room.
+                </p>
+              </div>
+              <div>
+                <span className="text-2xl mb-2 inline-block">🔄</span>
+                <h4 className="font-display text-lg font-bold text-primary">Hassle-Free Rescheduling</h4>
+                <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                  Illness or travel? Easily reschedule 1-on-1 classes or access full HD lesson recordings and teacher feedback.
+                </p>
+              </div>
+              <div>
+                <span className="text-2xl mb-2 inline-block">⭐</span>
+                <h4 className="font-display text-lg font-bold text-primary">Weekly WhatsApp Feedback</h4>
+                <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                  Receive personalized voice notes from your teacher on your child's pronunciation progress every single week.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </SiteLayout>
   );
 }

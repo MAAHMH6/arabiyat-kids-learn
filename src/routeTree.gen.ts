@@ -18,6 +18,7 @@ import { Route as FaqRouteImport } from './routes/faq'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ParentRouteImport } from './routes/parent'
+import { Route as PortalRouteImport } from './routes/portal'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as TermsRouteImport } from './routes/terms'
@@ -71,6 +72,11 @@ const ParentRoute = ParentRouteImport.update({
   path: '/parent',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PortalRoute = PortalRouteImport.update({
+  id: '/portal',
+  path: '/portal',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
@@ -117,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/how-it-works': typeof HowItWorksRoute
   '/login': typeof LoginRoute
   '/parent': typeof ParentRoute
+  '/portal': typeof PortalRoute
   '/privacy': typeof PrivacyRoute
   '/resources': typeof ResourcesRoute
   '/terms': typeof TermsRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByTo {
   '/how-it-works': typeof HowItWorksRoute
   '/login': typeof LoginRoute
   '/parent': typeof ParentRoute
+  '/portal': typeof PortalRoute
   '/privacy': typeof PrivacyRoute
   '/resources': typeof ResourcesRoute
   '/terms': typeof TermsRoute
@@ -154,6 +162,7 @@ export interface FileRoutesById {
   '/how-it-works': typeof HowItWorksRoute
   '/login': typeof LoginRoute
   '/parent': typeof ParentRoute
+  '/portal': typeof PortalRoute
   '/privacy': typeof PrivacyRoute
   '/resources': typeof ResourcesRoute
   '/terms': typeof TermsRoute
@@ -174,6 +183,7 @@ export interface FileRouteTypes {
     | '/how-it-works'
     | '/login'
     | '/parent'
+    | '/portal'
     | '/privacy'
     | '/resources'
     | '/terms'
@@ -192,6 +202,7 @@ export interface FileRouteTypes {
     | '/how-it-works'
     | '/login'
     | '/parent'
+    | '/portal'
     | '/privacy'
     | '/resources'
     | '/terms'
@@ -210,6 +221,7 @@ export interface FileRouteTypes {
     | '/how-it-works'
     | '/login'
     | '/parent'
+    | '/portal'
     | '/privacy'
     | '/resources'
     | '/terms'
@@ -229,6 +241,7 @@ export interface RootRouteChildren {
   HowItWorksRoute: typeof HowItWorksRoute
   LoginRoute: typeof LoginRoute
   ParentRoute: typeof ParentRoute
+  PortalRoute: typeof PortalRoute
   PrivacyRoute: typeof PrivacyRoute
   ResourcesRoute: typeof ResourcesRoute
   TermsRoute: typeof TermsRoute
@@ -303,6 +316,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ParentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/portal': {
+      id: '/portal'
+      path: '/portal'
+      fullPath: '/portal'
+      preLoaderRoute: typeof PortalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacy': {
       id: '/privacy'
       path: '/privacy'
@@ -365,6 +385,7 @@ const rootRouteChildren: RootRouteChildren = {
   HowItWorksRoute: HowItWorksRoute,
   LoginRoute: LoginRoute,
   ParentRoute: ParentRoute,
+  PortalRoute: PortalRoute,
   PrivacyRoute: PrivacyRoute,
   ResourcesRoute: ResourcesRoute,
   TermsRoute: TermsRoute,

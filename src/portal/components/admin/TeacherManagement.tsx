@@ -13,6 +13,8 @@ import {
   Check,
   Calendar,
   Users,
+  Edit2,
+  ShieldCheck,
 } from 'lucide-react';
 
 export const TeacherManagement: React.FC = () => {
@@ -24,6 +26,38 @@ export const TeacherManagement: React.FC = () => {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [status, setStatus] = useState<'Active' | 'Inactive'>('Active');
+
+  // Edit Teacher State
+  const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [editPassword, setEditPassword] = useState('');
+  const [editStatus, setEditStatus] = useState<'Active' | 'Inactive'>('Active');
+
+  const handleOpenEdit = (teacher: Teacher) => {
+    setEditingTeacher(teacher);
+    setEditName(teacher.name);
+    setEditEmail(teacher.email);
+    setEditPhone(teacher.phone || '');
+    setEditPassword(teacher.password || '');
+    setEditStatus(teacher.status);
+  };
+
+  const handleEditSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingTeacher || !editName.trim() || !editEmail.trim()) return;
+
+    updateTeacher(editingTeacher.id, {
+      name: editName.trim(),
+      email: editEmail.trim(),
+      phone: editPhone.trim() || '+966 50 000 0000',
+      password: editPassword.trim() || undefined,
+      status: editStatus,
+    });
+
+    setEditingTeacher(null);
+  };
 
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -167,6 +201,14 @@ export const TeacherManagement: React.FC = () => {
                       <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
                         <button
                           className="btn btn-outline btn-sm"
+                          onClick={() => handleOpenEdit(teacher)}
+                          title="Edit teacher details fully"
+                        >
+                          <Edit2 size={13} />
+                          <span>Edit</span>
+                        </button>
+                        <button
+                          className="btn btn-outline btn-sm"
                           style={{ color: '#EF4444', borderColor: '#FECACA' }}
                           onClick={() => {
                             if (confirm(`Remove teacher ${teacher.name}?`)) {
@@ -266,6 +308,108 @@ export const TeacherManagement: React.FC = () => {
                 <button type="submit" className="btn btn-primary">
                   <Check size={16} />
                   <span>Create Teacher Account</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Teacher Modal */}
+      {editingTeacher && (
+        <div className="modal-overlay" onClick={() => setEditingTeacher(null)}>
+          <div className="modal-container" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '480px' }}>
+            <div className="modal-header">
+              <h3 className="modal-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <ShieldCheck size={20} color="var(--primary)" />
+                <span>Edit Teacher Profile & Credentials</span>
+              </h3>
+              <button className="modal-close" onClick={() => setEditingTeacher(null)}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleEditSubmit}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label className="form-label">Teacher Full Name</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Mail size={14} color="var(--primary)" />
+                    <span>Email / Login Username</span>
+                  </label>
+                  <input
+                    type="email"
+                    className="form-input"
+                    value={editEmail}
+                    onChange={(e) => setEditEmail(e.target.value)}
+                    required
+                  />
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
+                    Used by the teacher to log into ArabiyatLearn Teacher Suite.
+                  </span>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Lock size={14} color="var(--primary)" />
+                    <span>Login Password</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="Enter new password (or keep existing)"
+                    value={editPassword}
+                    onChange={(e) => setEditPassword(e.target.value)}
+                  />
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
+                    Teacher can sign in with this password.
+                  </span>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Phone size={14} color="var(--primary)" />
+                    <span>Phone / WhatsApp</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="+966 50 123 4567"
+                    value={editPhone}
+                    onChange={(e) => setEditPhone(e.target.value)}
+                  />
+                </div>
+
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label className="form-label">Account Status</label>
+                  <select
+                    className="form-select"
+                    value={editStatus}
+                    onChange={(e) => setEditStatus(e.target.value as 'Active' | 'Inactive')}
+                  >
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button type="button" className="btn btn-outline" onClick={() => setEditingTeacher(null)}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  <Check size={16} />
+                  <span>Save Teacher Changes</span>
                 </button>
               </div>
             </form>

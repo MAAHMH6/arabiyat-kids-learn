@@ -9,11 +9,19 @@ import {
   Sparkles, 
   FileText,
   AlertCircle,
-  Video
+  Video,
+  Edit2,
+  User,
+  Mail,
+  Lock,
+  Phone,
+  X,
+  Check,
+  ShieldCheck
 } from 'lucide-react';
 
 export const StudentPortal: React.FC = () => {
-  const { students, teachers, sessions, homeworkTopics, currentUser, activeMonth } = useApp();
+  const { students, teachers, sessions, homeworkTopics, currentUser, activeMonth, updateStudent } = useApp();
 
   const isStudentUser = currentUser?.role === 'student';
 
@@ -49,6 +57,45 @@ export const StudentPortal: React.FC = () => {
   );
 
   const meetingUrl = currentStudent?.meetingLink?.trim() || 'https://meet.google.com';
+
+  // Edit Profile Modal state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [editPassword, setEditPassword] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [editMeetingLink, setEditMeetingLink] = useState('');
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  const handleOpenEdit = () => {
+    if (!currentStudent) return;
+    setEditName(currentStudent.name);
+    setEditEmail(currentStudent.email || '');
+    setEditPassword(currentStudent.password || '');
+    setEditPhone(currentStudent.phone || '');
+    setEditMeetingLink(currentStudent.meetingLink || '');
+    setSaveSuccess(false);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveProfile = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentStudent || !editName.trim()) return;
+
+    updateStudent(currentStudent.id, {
+      name: editName.trim(),
+      email: editEmail.trim() || undefined,
+      password: editPassword.trim() || undefined,
+      phone: editPhone.trim() || undefined,
+      meetingLink: editMeetingLink.trim() || undefined,
+    });
+
+    setSaveSuccess(true);
+    setTimeout(() => {
+      setSaveSuccess(false);
+      setIsEditModalOpen(false);
+    }, 1000);
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -137,29 +184,54 @@ export const StudentPortal: React.FC = () => {
           </p>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
-          <a
-            href={meetingUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="btn"
-            style={{
-              background: 'var(--gold, #D4A348)',
-              color: 'var(--primary, #0C3E35)',
-              fontWeight: 800,
-              borderRadius: 'var(--radius-md, 10px)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '12px 22px',
-              textDecoration: 'none',
-              boxShadow: '0 4px 14px rgba(212, 163, 72, 0.35)',
-              fontSize: '0.95rem',
-            }}
-          >
-            <Video size={18} />
-            <span>Join Live Class Room</span>
-          </a>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+            <button
+              type="button"
+              onClick={handleOpenEdit}
+              style={{
+                background: 'rgba(255, 255, 255, 0.15)',
+                color: '#FFFFFF',
+                border: '1px solid rgba(255, 255, 255, 0.35)',
+                borderRadius: 'var(--radius-md, 10px)',
+                padding: '11px 16px',
+                fontSize: '0.9rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                transition: 'all 0.2s ease',
+              }}
+              title="Edit personal name, password, or contact info"
+            >
+              <Edit2 size={15} />
+              <span>Edit Details</span>
+            </button>
+
+            <a
+              href={meetingUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="btn"
+              style={{
+                background: 'var(--gold, #D4A348)',
+                color: 'var(--primary, #0C3E35)',
+                fontWeight: 800,
+                borderRadius: 'var(--radius-md, 10px)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '12px 22px',
+                textDecoration: 'none',
+                boxShadow: '0 4px 14px rgba(212, 163, 72, 0.35)',
+                fontSize: '0.95rem',
+              }}
+            >
+              <Video size={18} />
+              <span>Join Live Class Room</span>
+            </a>
+          </div>
           <span style={{ fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.75)' }}>
             {currentStudent?.meetingLink ? '✓ Dedicated room link assigned' : 'Standard live classroom'}
           </span>
@@ -383,6 +455,133 @@ export const StudentPortal: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Edit Student Details Modal */}
+      {isEditModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsEditModalOpen(false)}>
+          <div className="modal-container" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '480px' }}>
+            <div className="modal-header">
+              <h3 className="modal-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <ShieldCheck size={20} color="var(--primary)" />
+                <span>Edit Student & Parent Details</span>
+              </h3>
+              <button className="modal-close" onClick={() => setIsEditModalOpen(false)}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveProfile}>
+              <div className="modal-body">
+                {saveSuccess && (
+                  <div
+                    style={{
+                      background: '#ECFDF5',
+                      color: '#065F46',
+                      padding: '10px 14px',
+                      borderRadius: '8px',
+                      fontSize: '0.85rem',
+                      marginBottom: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      border: '1px solid #A7F3D0',
+                    }}
+                  >
+                    <Check size={16} />
+                    <span>Your details were updated successfully!</span>
+                  </div>
+                )}
+
+                <div className="form-group">
+                  <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <User size={14} color="var(--primary)" />
+                    <span>Student Full Name</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Mail size={14} color="var(--primary)" />
+                    <span>Login Email Address</span>
+                  </label>
+                  <input
+                    type="email"
+                    className="form-input"
+                    placeholder="student@arabiyatlearn.com"
+                    value={editEmail}
+                    onChange={(e) => setEditEmail(e.target.value)}
+                  />
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
+                    Use this email address to log into your ArabiyatLearn dashboard.
+                  </span>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Lock size={14} color="var(--primary)" />
+                    <span>Login Password</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="Enter new password (or keep existing)"
+                    value={editPassword}
+                    onChange={(e) => setEditPassword(e.target.value)}
+                  />
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
+                    Keep your password safe for logging into your classes.
+                  </span>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Phone size={14} color="var(--primary)" />
+                    <span>Parent / Student Phone (WhatsApp)</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="+966 50 000 0000"
+                    value={editPhone}
+                    onChange={(e) => setEditPhone(e.target.value)}
+                  />
+                </div>
+
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Video size={14} color="var(--primary)" />
+                    <span>Preferred Meeting Room Link</span>
+                  </label>
+                  <input
+                    type="url"
+                    className="form-input"
+                    placeholder="https://meet.google.com/xyz or Zoom link"
+                    value={editMeetingLink}
+                    onChange={(e) => setEditMeetingLink(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button type="button" className="btn btn-outline" onClick={() => setIsEditModalOpen(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  <Check size={16} />
+                  <span>Save Profile</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

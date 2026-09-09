@@ -1020,7 +1020,68 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateTeacher = async (id: string, updates: Partial<Teacher>) => {
+    const targetTeacher = teachers.find((t) => t.id === id);
     setTeachers((prev) => prev.map((t) => (t.id === id ? { ...t, ...updates } : t)));
+
+    // Update associated profile so login credentials and names stay in sync
+    const updatedEmail = (updates.email ?? targetTeacher?.email)?.trim().toLowerCase();
+    const updatedName = (updates.name ?? targetTeacher?.name)?.trim();
+    const updatedPhone = updates.phone ?? targetTeacher?.phone;
+    const updatedPassword = updates.password ?? targetTeacher?.password;
+
+    setProfiles((prev) => {
+      const oldEmail = targetTeacher?.email?.toLowerCase();
+      const existing = prev.find(
+        (p) => (oldEmail && p.email.toLowerCase() === oldEmail) || p.id === `usr-${id}` || p.id === id
+      );
+      if (existing) {
+        return prev.map((p) =>
+          p.id === existing.id
+            ? {
+                ...p,
+                name: updatedName || p.name,
+                email: updatedEmail || p.email,
+                phone: updatedPhone !== undefined ? updatedPhone : p.phone,
+                password: updatedPassword || p.password,
+              }
+            : p
+        );
+      } else if (updatedEmail) {
+        return [
+          ...prev,
+          {
+            id: `usr-${id}`,
+            orgId: currentOrgId,
+            role: 'teacher' as const,
+            name: updatedName || 'Teacher',
+            email: updatedEmail,
+            phone: updatedPhone || '',
+            password: updatedPassword,
+          },
+        ];
+      }
+      return prev;
+    });
+
+    if (
+      currentUser &&
+      (currentUser.id === `usr-${id}` ||
+        currentUser.id === id ||
+        (targetTeacher?.email && currentUser.email.toLowerCase() === targetTeacher.email.toLowerCase()))
+    ) {
+      setCurrentUser((prev) =>
+        prev
+          ? {
+              ...prev,
+              name: updatedName || prev.name,
+              email: updatedEmail || prev.email,
+              phone: updatedPhone !== undefined ? updatedPhone : prev.phone,
+              password: updatedPassword || prev.password,
+            }
+          : null
+      );
+    }
+
     if (isSupabaseConfigured && supabase) {
       try {
         await supabase.from('teachers').update(updates).eq('id', id);

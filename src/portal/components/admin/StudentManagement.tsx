@@ -50,6 +50,7 @@ export const StudentManagement: React.FC = () => {
   const [editDays, setEditDays] = useState<number[]>([1, 3, 5]);
   const [editTime, setEditTime] = useState('5:00 PM');
   const [editStatus, setEditStatus] = useState<'Active' | 'Inactive'>('Active');
+  const [editNotes, setEditNotes] = useState('');
 
   // Reassignment form state
   const [newTeacherId, setNewTeacherId] = useState('');
@@ -119,6 +120,7 @@ export const StudentManagement: React.FC = () => {
     setEditDays(student.scheduleDays || [1, 3, 5]);
     setEditTime(student.scheduleTime);
     setEditStatus(student.status);
+    setEditNotes(student.notes || '');
   };
 
   const handleEditSubmit = (e: React.FormEvent) => {
@@ -137,6 +139,7 @@ export const StudentManagement: React.FC = () => {
       scheduleDays: editDays,
       scheduleTime: editTime.trim(),
       status: editStatus,
+      notes: editNotes.trim() || undefined,
     });
 
     setEditingStudent(null);
@@ -677,7 +680,7 @@ export const StudentManagement: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="form-group" style={{ marginBottom: 0 }}>
+                <div className="form-group">
                   <label className="form-label">Time</label>
                   <input
                     type="text"
@@ -686,6 +689,17 @@ export const StudentManagement: React.FC = () => {
                     value={editTime}
                     onChange={(e) => setEditTime(e.target.value)}
                     required
+                  />
+                </div>
+
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label className="form-label">Student Notes & Learning Goals</label>
+                  <textarea
+                    className="form-input"
+                    rows={2}
+                    placeholder="e.g. Needs focus on Makharij, conversational practice, etc."
+                    value={editNotes}
+                    onChange={(e) => setEditNotes(e.target.value)}
                   />
                 </div>
               </div>

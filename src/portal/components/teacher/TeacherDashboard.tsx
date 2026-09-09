@@ -20,7 +20,7 @@ interface TeacherDashboardProps {
 }
 
 export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onNavigateTab }) => {
-  const { currentUser, sessions, students, activeMonth, teachers } = useApp();
+  const { currentUser, sessions, students, activeMonth, teachers, courses } = useApp();
   const [selectedSessionForRecord, setSelectedSessionForRecord] = useState<ClassSession | null>(null);
   const [successToast, setSuccessToast] = useState('');
 
@@ -37,12 +37,33 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onNavigateTa
   const currentTeacherId = currentTeacher?.id || '';
   const teacherName = currentTeacher?.name || currentUser?.name || 'Teacher';
 
-  // Filter today's classes assigned to this teacher
-  const todayStr = new Date().toISOString().split('T')[0];
+  // Current real date
+  const todayStr = new Date().toISOString().split('T')[0] || '2026-09-09';
+  const todayFormatted = useMemo(() => {
+    return new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  }, []);
+
+  // Filter today's classes assigned to this teacher with 1 session per student
   const activeClasses = useMemo(() => {
-    return sessions
-      .filter((s) => (s.scheduledDate === todayStr || s.scheduledDate === '2026-09-08') && s.teacherId === currentTeacherId)
+    const todaySessions = sessions
+      .filter((s) => s.scheduledDate === todayStr && s.teacherId === currentTeacherId)
       .sort((a, b) => a.scheduledTime.localeCompare(b.scheduledTime));
+
+    // Deduplicate: ensure only 1 class per student for today
+    const seen = new Set<string>();
+    const deduplicated: ClassSession[] = [];
+    for (const sess of todaySessions) {
+      if (!seen.has(sess.studentId)) {
+        seen.add(sess.studentId);
+        deduplicated.push(sess);
+      }
+    }
+    return deduplicated;
   }, [sessions, currentTeacherId, todayStr]);
 
   // Monthly stats for this teacher
@@ -99,7 +120,9 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onNavigateTa
       {/* Teacher Hero Banner matching prompt */}
       <div className="teacher-hero-banner">
         <h2 className="teacher-greeting">Good morning, {teacherName}</h2>
-        <p className="teacher-subtext">Tuesday, September 8, 2026 • You have {activeClasses.length} classes scheduled today</p>
+        <p className="teacher-subtext">
+          {todayFormatted} • You have {activeClasses.length} {activeClasses.length === 1 ? 'class' : 'classes'} scheduled today
+        </p>
       </div>
 
       {successToast && (
@@ -183,12 +206,14 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onNavigateTa
                     {getStatusDisplay(session)}
                   </div>
 
-                  <h3 className="class-student-title">{student?.name || 'Nawaf'}</h3>
+                  <h3 className="class-student-title">{student?.name || 'Student'}</h3>
 
                   <div className="class-duration-info">
-                    <span>{session.durationMinutes} minutes duration</span>
+                    <span>{session.durationMinutes} mins</span>
                     <span>•</span>
-                    <span>Arabic Lesson</span>
+                    <span style={{ color: 'var(--primary)', fontWeight: 700 }}>
+                      {student?.courseTitle || (student?.courseId ? courses.find((c) => c.id === student.courseId)?.title : null) || 'Arabic Alphabet & Phonics'}
+                    </span>
                   </div>
 
                   {session.notes && (

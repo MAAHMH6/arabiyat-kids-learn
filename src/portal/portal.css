@@ -732,17 +732,6 @@ body {
   overflow: hidden;
   box-shadow: 0 8px 24px rgba(20, 61, 43, 0.18);
 }
-.teacher-hero-banner::after {
-  content: 'مدرسة اللغة العربية';
-  position: absolute;
-  right: 24px;
-  bottom: -15px;
-  font-family: var(--font-arabic);
-  font-size: 3.5rem;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.05);
-  pointer-events: none;
-}
 .teacher-greeting {
   font-size: 1.6rem;
   font-weight: 800;

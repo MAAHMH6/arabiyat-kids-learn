@@ -112,7 +112,7 @@ export const TeacherProfileModal: React.FC<TeacherProfileModalProps> = ({
               <input
                 type="text"
                 className="form-input"
-                placeholder="+966 50 000 0000"
+                placeholder="e.g. +966 or phone number"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
               />

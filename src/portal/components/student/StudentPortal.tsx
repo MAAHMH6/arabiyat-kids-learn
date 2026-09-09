@@ -548,7 +548,7 @@ export const StudentPortal: React.FC = () => {
                   <input
                     type="text"
                     className="form-input"
-                    placeholder="+966 50 000 0000"
+                    placeholder="e.g. +966 or phone number"
                     value={editPhone}
                     onChange={(e) => setEditPhone(e.target.value)}
                   />

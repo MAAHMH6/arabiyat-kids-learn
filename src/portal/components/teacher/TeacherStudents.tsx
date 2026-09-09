@@ -23,12 +23,13 @@ import {
 } from 'lucide-react';
 
 export const TeacherStudents: React.FC = () => {
-  const { students, sessions, homeworkTopics, currentUser, teachers, updateStudent, addStudent, deleteStudent } = useApp();
+  const { students, sessions, homeworkTopics, currentUser, teachers, courses, updateStudent, addStudent, deleteStudent } = useApp();
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
 
   // Add student modal state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [addName, setAddName] = useState('');
+  const [addCourseId, setAddCourseId] = useState('');
   const [addEmail, setAddEmail] = useState('');
   const [addPassword, setAddPassword] = useState('');
   const [addPhone, setAddPhone] = useState('');
@@ -42,6 +43,7 @@ export const TeacherStudents: React.FC = () => {
   // Editing student modal state
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [editName, setEditName] = useState('');
+  const [editCourseId, setEditCourseId] = useState('');
   const [editEmail, setEditEmail] = useState('');
   const [editPassword, setEditPassword] = useState('');
   const [editPhone, setEditPhone] = useState('');
@@ -80,6 +82,7 @@ export const TeacherStudents: React.FC = () => {
     e.stopPropagation();
     setEditingStudent(student);
     setEditName(student.name);
+    setEditCourseId(student.courseId || '');
     setEditEmail(student.email || '');
     setEditPassword(student.password || '');
     setEditPhone(student.phone || '');
@@ -98,8 +101,12 @@ export const TeacherStudents: React.FC = () => {
     e.preventDefault();
     if (!editingStudent || !editName.trim()) return;
 
+    const selectedCourse = courses.find((c) => c.id === editCourseId);
+
     const updates: Partial<Student> = {
       name: editName.trim(),
+      courseId: editCourseId || undefined,
+      courseTitle: selectedCourse?.title || undefined,
       email: editEmail.trim() || undefined,
       password: editPassword.trim() || undefined,
       phone: editPhone.trim() || undefined,
@@ -132,6 +139,8 @@ export const TeacherStudents: React.FC = () => {
     e.preventDefault();
     if (!addName.trim()) return;
 
+    const selectedCourse = courses.find((c) => c.id === addCourseId);
+
     addStudent({
       name: addName.trim(),
       teacherId: currentTeacherId,
@@ -139,6 +148,8 @@ export const TeacherStudents: React.FC = () => {
       startDate: addStartDate,
       scheduleDays: addDays,
       scheduleTime: addTime.trim(),
+      courseId: addCourseId || undefined,
+      courseTitle: selectedCourse?.title || undefined,
       email: addEmail.trim() || undefined,
       password: addPassword.trim() || undefined,
       phone: addPhone.trim() || undefined,
@@ -148,6 +159,7 @@ export const TeacherStudents: React.FC = () => {
 
     // Reset and close
     setAddName('');
+    setAddCourseId('');
     setAddEmail('');
     setAddPassword('');
     setAddPhone('');
@@ -302,6 +314,12 @@ export const TeacherStudents: React.FC = () => {
                 </div>
 
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '12px', lineHeight: 1.5 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                    <BookOpen size={14} color="var(--primary)" />
+                    <span style={{ color: 'var(--primary)', fontWeight: 700, fontSize: '0.84rem' }}>
+                      {student.courseTitle || (student.courseId ? courses.find((c) => c.id === student.courseId)?.title : null) || 'Arabic Alphabet & Phonics'}
+                    </span>
+                  </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <Clock size={14} color="var(--primary)" />
                     <span>Timing: <strong>{student.scheduleTime}</strong> ({student.durationMinutes} mins)</span>
@@ -543,11 +561,27 @@ export const TeacherStudents: React.FC = () => {
                     <input
                       type="tel"
                       className="form-input"
-                      placeholder="+966 50 123 4567"
+                      placeholder="e.g. +966 or phone number"
                       value={editPhone}
                       onChange={(e) => setEditPhone(e.target.value)}
                     />
                   </div>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Enrolled Course</label>
+                  <select
+                    className="form-select"
+                    value={editCourseId}
+                    onChange={(e) => setEditCourseId(e.target.value)}
+                  >
+                    <option value="">General Arabic Foundations</option>
+                    {courses.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.title} ({c.level})
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
@@ -762,11 +796,27 @@ export const TeacherStudents: React.FC = () => {
                     <input
                       type="tel"
                       className="form-input"
-                      placeholder="+966 50 123 4567"
+                      placeholder="e.g. +966 or phone number"
                       value={addPhone}
                       onChange={(e) => setAddPhone(e.target.value)}
                     />
                   </div>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Enrolled Course</label>
+                  <select
+                    className="form-select"
+                    value={addCourseId}
+                    onChange={(e) => setAddCourseId(e.target.value)}
+                  >
+                    <option value="">General Arabic Foundations</option>
+                    {courses.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.title} ({c.level})
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>

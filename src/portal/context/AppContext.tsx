@@ -57,6 +57,8 @@ interface AppContextType {
     startDate: string;
     scheduleDays: number[];
     scheduleTime: string;
+    courseId?: string | undefined;
+    courseTitle?: string | undefined;
     email?: string | undefined;
     password?: string | undefined;
     phone?: string | undefined;
@@ -606,6 +608,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     startDate: string;
     scheduleDays: number[];
     scheduleTime: string;
+    courseId?: string | undefined;
+    courseTitle?: string | undefined;
     email?: string | undefined;
     password?: string | undefined;
     phone?: string | undefined;
@@ -618,6 +622,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const cleanPhone = data.phone?.trim() || undefined;
     const cleanMeetingLink = data.meetingLink?.trim() || undefined;
     const cleanNotes = data.notes?.trim() || undefined;
+    const cleanCourseId = data.courseId?.trim() || undefined;
+    const cleanCourseTitle = data.courseTitle?.trim() || undefined;
 
     const newStudent: Student = {
       id: studentId,
@@ -629,6 +635,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       scheduleDays: data.scheduleDays,
       scheduleTime: data.scheduleTime,
       status: 'Active',
+      courseId: cleanCourseId,
+      courseTitle: cleanCourseTitle,
       email: cleanEmail,
       password: cleanPassword,
       phone: cleanPhone,

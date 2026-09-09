@@ -53,6 +53,8 @@ export interface Student {
   scheduleDays: number[]; // 0 = Sun, 1 = Mon, 2 = Tue, 3 = Wed, 4 = Thu, 5 = Fri, 6 = Sat
   scheduleTime: string; // e.g. "5:00 PM"
   status: 'Active' | 'Inactive';
+  courseId?: string | undefined;
+  courseTitle?: string | undefined;
   email?: string | undefined;
   password?: string | undefined;
   phone?: string | undefined;

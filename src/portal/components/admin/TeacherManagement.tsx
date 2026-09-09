@@ -51,7 +51,7 @@ export const TeacherManagement: React.FC = () => {
     updateTeacher(editingTeacher.id, {
       name: editName.trim(),
       email: editEmail.trim(),
-      phone: editPhone.trim() || '+966 50 000 0000',
+      phone: editPhone.trim(),
       password: editPassword.trim() || undefined,
       status: editStatus,
     });
@@ -67,7 +67,7 @@ export const TeacherManagement: React.FC = () => {
       name: name.trim(),
       email: email.trim(),
       password: password.trim() || 'teacher123',
-      phone: phone.trim() || '+966 50 000 0000',
+      phone: phone.trim(),
       status,
     });
 
@@ -170,7 +170,9 @@ export const TeacherManagement: React.FC = () => {
                       </div>
                     </td>
                     <td>
-                      <div style={{ fontSize: '0.82rem', color: 'var(--text-main)' }}>{teacher.phone}</div>
+                      <div style={{ fontSize: '0.82rem', color: teacher.phone ? 'var(--text-main)' : 'var(--text-muted)' }}>
+                        {teacher.phone || '—'}
+                      </div>
                     </td>
                     <td>
                       <span
@@ -282,7 +284,7 @@ export const TeacherManagement: React.FC = () => {
                   <input
                     type="text"
                     className="form-input"
-                    placeholder="+966 50 123 4567"
+                    placeholder="e.g. +966 or phone number"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                   />
@@ -384,7 +386,7 @@ export const TeacherManagement: React.FC = () => {
                   <input
                     type="text"
                     className="form-input"
-                    placeholder="+966 50 123 4567"
+                    placeholder="e.g. +966 or phone number"
                     value={editPhone}
                     onChange={(e) => setEditPhone(e.target.value)}
                   />

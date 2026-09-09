@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 
 export const StudentManagement: React.FC = () => {
-  const { students, teachers, addStudent, updateStudent, deleteStudent, reassignStudentTeacher } = useApp();
+  const { students, teachers, courses, addStudent, updateStudent, deleteStudent, reassignStudentTeacher } = useApp();
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isReassignModalOpen, setIsReassignModalOpen] = useState(false);
@@ -27,6 +27,7 @@ export const StudentManagement: React.FC = () => {
 
   // Form states for Add Student
   const [name, setName] = useState('');
+  const [courseId, setCourseId] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
@@ -40,6 +41,7 @@ export const StudentManagement: React.FC = () => {
   // Edit modal state
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [editName, setEditName] = useState('');
+  const [editCourseId, setEditCourseId] = useState('');
   const [editEmail, setEditEmail] = useState('');
   const [editPassword, setEditPassword] = useState('');
   const [editPhone, setEditPhone] = useState('');
@@ -85,6 +87,8 @@ export const StudentManagement: React.FC = () => {
     e.preventDefault();
     if (!name.trim()) return;
 
+    const selectedCourse = courses.find((c) => c.id === courseId);
+
     addStudent({
       name: name.trim(),
       teacherId,
@@ -92,6 +96,8 @@ export const StudentManagement: React.FC = () => {
       startDate,
       scheduleDays,
       scheduleTime,
+      courseId: courseId || undefined,
+      courseTitle: selectedCourse?.title || undefined,
       email: email.trim() || undefined,
       password: password.trim() || undefined,
       phone: phone.trim() || undefined,
@@ -100,6 +106,7 @@ export const StudentManagement: React.FC = () => {
 
     // Reset & close
     setName('');
+    setCourseId('');
     setEmail('');
     setPassword('');
     setPhone('');
@@ -110,6 +117,7 @@ export const StudentManagement: React.FC = () => {
   const handleEditOpen = (student: Student) => {
     setEditingStudent(student);
     setEditName(student.name);
+    setEditCourseId(student.courseId || '');
     setEditEmail(student.email || '');
     setEditPassword(student.password || '');
     setEditPhone(student.phone || '');
@@ -127,8 +135,12 @@ export const StudentManagement: React.FC = () => {
     e.preventDefault();
     if (!editingStudent || !editName.trim()) return;
 
+    const selectedCourse = courses.find((c) => c.id === editCourseId);
+
     updateStudent(editingStudent.id, {
       name: editName.trim(),
+      courseId: editCourseId || undefined,
+      courseTitle: selectedCourse?.title || undefined,
       email: editEmail.trim() || undefined,
       password: editPassword.trim() || undefined,
       phone: editPhone.trim() || undefined,
@@ -227,8 +239,11 @@ export const StudentManagement: React.FC = () => {
                         <div style={{ fontWeight: 700, color: 'var(--text-main)', fontSize: '0.95rem' }}>
                           {student.name}
                         </div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: 600, marginTop: '2px' }}>
+                          {student.courseTitle || (student.courseId ? courses.find((c) => c.id === student.courseId)?.title : null) || 'Arabic Alphabet & Phonics'}
+                        </div>
                         {student.email && (
-                          <div style={{ fontSize: '0.75rem', color: '#64748B', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+                          <div style={{ fontSize: '0.73rem', color: '#64748B', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
                             <Lock size={11} color="#94A3B8" />
                             <span>{student.email}</span>
                           </div>
@@ -413,26 +428,44 @@ export const StudentManagement: React.FC = () => {
                     <input
                       type="tel"
                       className="form-input"
-                      placeholder="+966 50 123 4567"
+                      placeholder="e.g. +966 or phone number"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                     />
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Assign Teacher</label>
-                  <select
-                    className="form-select"
-                    value={teacherId}
-                    onChange={(e) => setTeacherId(e.target.value)}
-                  >
-                    {teachers.map((t) => (
-                      <option key={t.id} value={t.id}>
-                        {t.name} ({t.status})
-                      </option>
-                    ))}
-                  </select>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div className="form-group">
+                    <label className="form-label">Assign Teacher</label>
+                    <select
+                      className="form-select"
+                      value={teacherId}
+                      onChange={(e) => setTeacherId(e.target.value)}
+                    >
+                      {teachers.map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.name} ({t.status})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Enrolled Course</label>
+                    <select
+                      className="form-select"
+                      value={courseId}
+                      onChange={(e) => setCourseId(e.target.value)}
+                    >
+                      <option value="">General Arabic Foundations</option>
+                      {courses.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.title} ({c.level})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
@@ -587,14 +620,14 @@ export const StudentManagement: React.FC = () => {
                     <input
                       type="tel"
                       className="form-input"
-                      placeholder="+966 50 123 4567"
+                      placeholder="e.g. +966 or phone number"
                       value={editPhone}
                       onChange={(e) => setEditPhone(e.target.value)}
                     />
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
                   <div className="form-group">
                     <label className="form-label">Assign Teacher</label>
                     <select
@@ -605,6 +638,22 @@ export const StudentManagement: React.FC = () => {
                       {teachers.map((t) => (
                         <option key={t.id} value={t.id}>
                           {t.name} ({t.status})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Enrolled Course</label>
+                    <select
+                      className="form-select"
+                      value={editCourseId}
+                      onChange={(e) => setEditCourseId(e.target.value)}
+                    >
+                      <option value="">General Arabic Foundations</option>
+                      {courses.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.title} ({c.level})
                         </option>
                       ))}
                     </select>

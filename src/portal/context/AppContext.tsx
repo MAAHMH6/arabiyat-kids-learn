@@ -20,6 +20,7 @@ import {
   generateSeptember2026Classes,
 } from '../lib/mockData';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { identifyUser, resetUser } from '@/lib/posthog';
 
 interface AppContextType {
   currentUser: UserProfile | null;
@@ -344,8 +345,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     if (currentUser) {
       setStorageItem(`${STORAGE_KEY}_currentUser`, JSON.stringify(currentUser));
+      if (currentUser.email) {
+        identifyUser({
+          email: currentUser.email,
+          role: currentUser.role,
+          orgId: currentUser.orgId,
+          id: currentUser.id,
+        });
+      }
     } else {
       removeStorageItem(`${STORAGE_KEY}_currentUser`);
+      resetUser();
     }
   }, [currentUser]);
 
@@ -536,6 +546,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const logout = () => {
     setCurrentUser(null);
     localStorage.removeItem(`${STORAGE_KEY}_currentUser`);
+    resetUser();
   };
 
   const switchUserRole = (role: 'admin' | 'teacher', teacherId?: string) => {

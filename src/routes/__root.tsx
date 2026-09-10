@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "../components/ui/sonner";
 import { AppProvider } from "@/portal/context/AppContext";
+import { initPostHog, posthog } from "@/lib/posthog";
 
 function NotFoundComponent() {
   return (
@@ -124,6 +125,19 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
+
+  useEffect(() => {
+    initPostHog();
+  }, []);
+
+  useEffect(() => {
+    return router.subscribe('onResolved', () => {
+      if (typeof window !== 'undefined') {
+        posthog.capture('$pageview');
+      }
+    });
+  }, [router]);
 
   return (
     <QueryClientProvider client={queryClient}>

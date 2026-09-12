@@ -20,6 +20,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as ParentRouteImport } from './routes/parent'
 import { Route as PortalRouteImport } from './routes/portal'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as QuranLearningRouteImport } from './routes/quran-learning'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as CheckoutSlugRouteImport } from './routes/checkout.$slug'
@@ -82,6 +83,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const QuranLearningRoute = QuranLearningRouteImport.update({
+  id: '/quran-learning',
+  path: '/quran-learning',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResourcesRoute = ResourcesRouteImport.update({
   id: '/resources',
   path: '/resources',
@@ -125,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/parent': typeof ParentRoute
   '/portal': typeof PortalRoute
   '/privacy': typeof PrivacyRoute
+  '/quran-learning': typeof QuranLearningRoute
   '/resources': typeof ResourcesRoute
   '/terms': typeof TermsRoute
   '/checkout/$slug': typeof CheckoutSlugRoute
@@ -144,6 +151,7 @@ export interface FileRoutesByTo {
   '/parent': typeof ParentRoute
   '/portal': typeof PortalRoute
   '/privacy': typeof PrivacyRoute
+  '/quran-learning': typeof QuranLearningRoute
   '/resources': typeof ResourcesRoute
   '/terms': typeof TermsRoute
   '/checkout/$slug': typeof CheckoutSlugRoute
@@ -164,6 +172,7 @@ export interface FileRoutesById {
   '/parent': typeof ParentRoute
   '/portal': typeof PortalRoute
   '/privacy': typeof PrivacyRoute
+  '/quran-learning': typeof QuranLearningRoute
   '/resources': typeof ResourcesRoute
   '/terms': typeof TermsRoute
   '/checkout/$slug': typeof CheckoutSlugRoute
@@ -185,6 +194,7 @@ export interface FileRouteTypes {
     | '/parent'
     | '/portal'
     | '/privacy'
+    | '/quran-learning'
     | '/resources'
     | '/terms'
     | '/checkout/$slug'
@@ -204,6 +214,7 @@ export interface FileRouteTypes {
     | '/parent'
     | '/portal'
     | '/privacy'
+    | '/quran-learning'
     | '/resources'
     | '/terms'
     | '/checkout/$slug'
@@ -223,6 +234,7 @@ export interface FileRouteTypes {
     | '/parent'
     | '/portal'
     | '/privacy'
+    | '/quran-learning'
     | '/resources'
     | '/terms'
     | '/checkout/$slug'
@@ -243,6 +255,7 @@ export interface RootRouteChildren {
   ParentRoute: typeof ParentRoute
   PortalRoute: typeof PortalRoute
   PrivacyRoute: typeof PrivacyRoute
+  QuranLearningRoute: typeof QuranLearningRoute
   ResourcesRoute: typeof ResourcesRoute
   TermsRoute: typeof TermsRoute
   CheckoutSlugRoute: typeof CheckoutSlugRoute
@@ -330,6 +343,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/quran-learning': {
+      id: '/quran-learning'
+      path: '/quran-learning'
+      fullPath: '/quran-learning'
+      preLoaderRoute: typeof QuranLearningRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/resources': {
       id: '/resources'
       path: '/resources'
@@ -387,6 +407,7 @@ const rootRouteChildren: RootRouteChildren = {
   ParentRoute: ParentRoute,
   PortalRoute: PortalRoute,
   PrivacyRoute: PrivacyRoute,
+  QuranLearningRoute: QuranLearningRoute,
   ResourcesRoute: ResourcesRoute,
   TermsRoute: TermsRoute,
   CheckoutSlugRoute: CheckoutSlugRoute,

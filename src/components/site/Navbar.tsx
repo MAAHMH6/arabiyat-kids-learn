@@ -10,6 +10,7 @@ import { useApp } from "@/portal/context/AppContext";
 const links = [
   { to: "/", label: "Home" },
   { to: "/courses", label: "Courses" },
+  { to: "/quran-learning", label: "Quran Learning" },
   { to: "/about", label: "About" },
   { to: "/how-it-works", label: "How It Works" },
   { to: "/faq", label: "FAQ" },

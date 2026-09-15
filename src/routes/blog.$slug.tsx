@@ -1,12 +1,14 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, Clock, User2, Tag, Share2, Calendar } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { getBlogPost, getRecentPosts, blogPosts } from "@/lib/blog-data";
 
-const SITE_URL = "https://arabiyatlearn.com";
+const SITE_URL = "https://www.arabiyatlearn.com";
 
-export const Route = createFileRoute("/blog/$slug")({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const Route = (createFileRoute as any)("/blog/$slug")({
   head: ({ params }) => {
     const post = getBlogPost(params.slug);
     if (!post) {
@@ -44,7 +46,8 @@ export const Route = createFileRoute("/blog/$slug")({
 });
 
 function BlogPostPage() {
-  const { slug } = Route.useParams();
+  const params = Route.useParams() as { slug: string };
+  const { slug } = params;
   const post = getBlogPost(slug);
 
   if (!post) {
@@ -56,7 +59,7 @@ function BlogPostPage() {
             This article doesn't exist or may have been moved.
           </p>
           <Button asChild>
-            <Link to="/blog/">View All Articles</Link>
+            <a href="/blog/">View All Articles</a>
           </Button>
         </div>
       </SiteLayout>
@@ -134,13 +137,6 @@ function BlogPostPage() {
           </h3>
         );
       }
-      if (trimmed.startsWith("**") && trimmed.endsWith("**")) {
-        return (
-          <p key={i} className="font-semibold text-foreground my-2">
-            {trimmed.slice(2, -2)}
-          </p>
-        );
-      }
       if (trimmed.startsWith("- ")) {
         const items = trimmed.split("\n").filter((l) => l.startsWith("- "));
         return (
@@ -165,7 +161,7 @@ function BlogPostPage() {
           </ol>
         );
       }
-      if (trimmed.startsWith("*") && trimmed.endsWith("*")) {
+      if (trimmed.startsWith("*") && trimmed.endsWith("*") && !trimmed.startsWith("**")) {
         return (
           <blockquote key={i} className="border-l-4 border-[#C8707E] pl-5 py-2 my-6 italic text-muted-foreground bg-muted/30 rounded-r-lg">
             {trimmed.slice(1, -1)}
@@ -173,30 +169,26 @@ function BlogPostPage() {
         );
       }
 
-      // Handle inline bold **text** within paragraphs
-      const parts = trimmed.split(/(\*\*[^*]+\*\*)/g);
+      // Handle inline bold **text** and links [text](/path) within paragraphs
+      const parts = trimmed.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\))/g);
       const rendered = parts.map((part, j) => {
         if (part.startsWith("**") && part.endsWith("**")) {
           return <strong key={j}>{part.slice(2, -2)}</strong>;
         }
-        // Handle inline links like [text](/path)
-        const linkParts = part.split(/(\[[^\]]+\]\([^)]+\))/g);
-        return linkParts.map((lp, k) => {
-          const linkMatch = lp.match(/\[([^\]]+)\]\(([^)]+)\)/);
-          if (linkMatch) {
-            const [, text, href] = linkMatch;
-            return (
-              <Link
-                key={k}
-                to={href as any}
-                className="text-[#0C3E35] underline underline-offset-2 hover:text-[#C8707E] transition-colors"
-              >
-                {text}
-              </Link>
-            );
-          }
-          return lp;
-        });
+        const linkMatch = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+        if (linkMatch) {
+          const [, text, href] = linkMatch;
+          return (
+            <a
+              key={j}
+              href={href}
+              className="text-[#0C3E35] underline underline-offset-2 hover:text-[#C8707E] transition-colors"
+            >
+              {text}
+            </a>
+          );
+        }
+        return part;
       });
 
       return (
@@ -218,12 +210,12 @@ function BlogPostPage() {
       {/* Article Header */}
       <div className="bg-gradient-to-br from-[#0C3E35]/5 to-[#C8707E]/5 border-b border-border">
         <div className="max-w-3xl mx-auto px-4 py-14">
-          <Link
-            to="/blog/"
+          <a
+            href="/blog/"
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-[#0C3E35] transition-colors mb-8"
           >
             <ArrowLeft className="h-4 w-4" /> Back to Blog
-          </Link>
+          </a>
 
           <span className={`text-xs font-semibold px-3 py-1 rounded-full ${colorClass} mb-4 inline-block`}>
             {post.category}
@@ -268,7 +260,7 @@ function BlogPostPage() {
         <div className="flex flex-col lg:flex-row gap-12">
           {/* Main content */}
           <article className="flex-1 min-w-0 max-w-3xl">
-            <div className="prose-custom text-[1.05rem]">
+            <div className="text-[1.05rem]">
               {renderContent(post.content)}
             </div>
 
@@ -312,9 +304,8 @@ function BlogPostPage() {
             {/* Prev / Next navigation */}
             <nav className="mt-12 grid grid-cols-2 gap-4" aria-label="Article navigation">
               {prevPost ? (
-                <Link
-                  to="/blog/$slug"
-                  params={{ slug: prevPost.slug }}
+                <a
+                  href={`/blog/${prevPost.slug}`}
                   className="group flex flex-col gap-1 p-4 rounded-xl border border-border hover:border-[#0C3E35] transition-colors"
                 >
                   <span className="text-xs text-muted-foreground flex items-center gap-1">
@@ -323,14 +314,13 @@ function BlogPostPage() {
                   <span className="text-sm font-medium text-foreground group-hover:text-[#0C3E35] line-clamp-2">
                     {prevPost.title}
                   </span>
-                </Link>
+                </a>
               ) : (
                 <div />
               )}
               {nextPost ? (
-                <Link
-                  to="/blog/$slug"
-                  params={{ slug: nextPost.slug }}
+                <a
+                  href={`/blog/${nextPost.slug}`}
                   className="group flex flex-col gap-1 p-4 rounded-xl border border-border hover:border-[#0C3E35] transition-colors text-right"
                 >
                   <span className="text-xs text-muted-foreground flex items-center justify-end gap-1">
@@ -339,7 +329,7 @@ function BlogPostPage() {
                   <span className="text-sm font-medium text-foreground group-hover:text-[#0C3E35] line-clamp-2">
                     {nextPost.title}
                   </span>
-                </Link>
+                </a>
               ) : (
                 <div />
               )}
@@ -364,7 +354,7 @@ function BlogPostPage() {
                 size="sm"
                 className="w-full bg-[#C8707E] hover:bg-[#b55e6d] text-white border-0"
               >
-                <Link to="/contact">Book Free Demo</Link>
+                <a href="/contact">Book Free Demo</a>
               </Button>
             </div>
 
@@ -374,25 +364,24 @@ function BlogPostPage() {
                 <h3 className="text-sm font-bold text-foreground mb-4">More Articles</h3>
                 <div className="space-y-4">
                   {recentPosts.map((rp) => (
-                    <Link
+                    <a
                       key={rp.slug}
-                      to="/blog/$slug"
-                      params={{ slug: rp.slug }}
+                      href={`/blog/${rp.slug}`}
                       className="group block"
                     >
                       <p className="text-sm font-medium text-foreground group-hover:text-[#0C3E35] line-clamp-2 leading-snug">
                         {rp.title}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">{rp.readingTime}</p>
-                    </Link>
+                    </a>
                   ))}
                 </div>
-                <Link
-                  to="/blog/"
+                <a
+                  href="/blog/"
                   className="text-xs text-[#0C3E35] hover:underline mt-5 inline-block"
                 >
                   View all articles →
-                </Link>
+                </a>
               </div>
             )}
 
@@ -408,9 +397,9 @@ function BlogPostPage() {
                 Our most popular course for beginners aged 5–10.
               </p>
               <Button asChild variant="outline" size="sm" className="w-full">
-                <Link to="/courses/$slug" params={{ slug: "arabic-alphabet-phonics" }}>
+                <a href="/courses/arabic-alphabet-phonics">
                   View Course <ArrowRight className="ml-1 h-3 w-3" />
-                </Link>
+                </a>
               </Button>
             </div>
           </aside>

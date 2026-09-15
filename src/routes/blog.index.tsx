@@ -1,14 +1,15 @@
 import { useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, BookOpen, Rss, Tag } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
+import { ArrowRight, BookOpen, Rss } from "lucide-react";
 import { SiteLayout, PageHeader, SectionHeading } from "@/components/site/SiteLayout";
 import { BlogCard } from "@/components/site/BlogCard";
 import { Button } from "@/components/ui/button";
 import { blogPosts, blogCategories, getPostsByCategory, type BlogCategory } from "@/lib/blog-data";
 
-const SITE_URL = "https://arabiyatlearn.com";
+const SITE_URL = "https://www.arabiyatlearn.com";
 
-export const Route = createFileRoute("/blog/")({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const Route = (createFileRoute as any)("/blog/")({
   head: () => ({
     meta: [
       { title: "Arabic Learning Blog for Parents & Children — ArabiyatLearn" },
@@ -94,7 +95,6 @@ function BlogIndexPage() {
         {activeCategory === "All" && featuredPosts.length > 0 && (
           <section className="mb-16">
             <SectionHeading
-              eyebrow="Featured Articles"
               title="Start Here"
               subtitle="Our most-read guides for parents just beginning the Arabic journey."
             />
@@ -126,7 +126,7 @@ function BlogIndexPage() {
         {/* All / filtered posts */}
         <section className="mb-16">
           {activeCategory === "All" && (
-            <SectionHeading eyebrow="All Articles" title="Browse Everything" />
+            <SectionHeading title="Browse All Articles" />
           )}
 
           {filteredPosts.length === 0 ? (
@@ -162,9 +162,9 @@ function BlogIndexPage() {
             Book a free 30-minute demo class and let your child experience how fun Arabic can be.
           </p>
           <Button asChild size="lg" className="bg-[#C8707E] hover:bg-[#b55e6d] text-white border-0">
-            <Link to="/contact">
+            <a href="/contact">
               Book Free Demo Class <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
+            </a>
           </Button>
         </section>
       </div>

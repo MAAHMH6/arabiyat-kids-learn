@@ -7,17 +7,28 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useApp } from "@/portal/context/AppContext";
 
-const links = [
+// Typed routes known to the router
+const typedLinks = [
   { to: "/", label: "Home" },
   { to: "/courses", label: "Courses" },
   { to: "/quran-learning", label: "Quran Learning" },
-  { to: "/blog", label: "Blog" },
   { to: "/about", label: "About" },
   { to: "/how-it-works", label: "How It Works" },
   { to: "/faq", label: "FAQ" },
   { to: "/contact", label: "Contact" },
 ] as const;
 
+// Blog uses href (route type is generated at build time)
+const allNavItems: { label: string; to?: string; href?: string }[] = [
+  { to: "/", label: "Home" },
+  { to: "/courses", label: "Courses" },
+  { to: "/quran-learning", label: "Quran Learning" },
+  { href: "/blog/", label: "Blog" },
+  { to: "/about", label: "About" },
+  { to: "/how-it-works", label: "How It Works" },
+  { to: "/faq", label: "FAQ" },
+  { to: "/contact", label: "Contact" },
+];
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
@@ -41,18 +52,28 @@ export function Navbar() {
             <Logo />
           </div>
 
-          {/* Desktop Nav Links - Spacious, never squeezed */}
+          {/* Desktop Nav Links */}
           <div className="hidden items-center gap-1 xl:gap-2 lg:flex shrink-0">
-            {links.map((l) => (
-              <Link
-                key={l.to}
-                to={l.to}
-                activeOptions={{ exact: l.to === "/" }}
-                className="whitespace-nowrap shrink-0 rounded-lg px-3 py-1.5 text-sm font-semibold text-foreground/80 transition-all hover:bg-muted/70 hover:text-primary data-[status=active]:bg-pink-soft data-[status=active]:text-primary"
-              >
-                {l.label}
-              </Link>
-            ))}
+            {allNavItems.map((l) =>
+              l.href ? (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  className="whitespace-nowrap shrink-0 rounded-lg px-3 py-1.5 text-sm font-semibold text-foreground/80 transition-all hover:bg-muted/70 hover:text-primary"
+                >
+                  {l.label}
+                </a>
+              ) : (
+                <Link
+                  key={l.to}
+                  to={l.to as any}
+                  activeOptions={{ exact: l.to === "/" }}
+                  className="whitespace-nowrap shrink-0 rounded-lg px-3 py-1.5 text-sm font-semibold text-foreground/80 transition-all hover:bg-muted/70 hover:text-primary data-[status=active]:bg-pink-soft data-[status=active]:text-primary"
+                >
+                  {l.label}
+                </Link>
+              )
+            )}
           </div>
 
           {/* Right CTAs */}
@@ -118,16 +139,27 @@ export function Navbar() {
         {open && (
           <div className="border-t border-border bg-background px-4 py-5 lg:hidden animate-fade-in">
             <div className="flex flex-col gap-1">
-              {links.map((l) => (
-                <Link
-                  key={l.to}
-                  to={l.to}
-                  onClick={() => setOpen(false)}
-                  className="rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-muted text-foreground/85"
-                >
-                  {l.label}
-                </Link>
-              ))}
+              {allNavItems.map((l) =>
+                l.href ? (
+                  <a
+                    key={l.href}
+                    href={l.href}
+                    onClick={() => setOpen(false)}
+                    className="rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-muted text-foreground/85"
+                  >
+                    {l.label}
+                  </a>
+                ) : (
+                  <Link
+                    key={l.to}
+                    to={l.to as any}
+                    onClick={() => setOpen(false)}
+                    className="rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-muted text-foreground/85"
+                  >
+                    {l.label}
+                  </Link>
+                )
+              )}
             </div>
 
             <div className="mt-4 flex flex-col gap-2.5 border-t border-border pt-4">

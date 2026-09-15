@@ -5,7 +5,7 @@ import { Logo } from "./Logo";
 type FooterItem =
   | {
       label: string;
-      to: "/" | "/courses" | "/blog" | "/about" | "/how-it-works" | "/contact" | "/faq" | "/privacy" | "/terms" | "/login";
+      to: "/" | "/courses" | "/about" | "/how-it-works" | "/contact" | "/faq" | "/privacy" | "/terms" | "/login";
       href?: never;
     }
   | {
@@ -34,7 +34,7 @@ const columns: FooterColumn[] = [
     items: [
       { label: "Meet Ustadha", to: "/about" },
       { label: "Teaching Methodology", to: "/about" },
-      { label: "Arabic Learning Blog", to: "/blog" },
+      { label: "Arabic Learning Blog", href: "/blog/" },
       { label: "Parent FAQ", to: "/faq" },
       { label: "Contact & Booking", to: "/contact" },
     ],

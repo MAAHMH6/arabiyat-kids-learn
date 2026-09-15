@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router";
 import { Clock, Tag } from "lucide-react";
 import type { BlogPost } from "@/lib/blog-data";
 
@@ -19,9 +18,8 @@ export function BlogCard({ post, featured = false }: BlogCardProps) {
 
   if (featured) {
     return (
-      <Link
-        to="/blog/$slug"
-        params={{ slug: post.slug }}
+      <a
+        href={`/blog/${post.slug}`}
         className="group block rounded-2xl overflow-hidden border border-border bg-card shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
         aria-label={`Read: ${post.title}`}
       >
@@ -53,18 +51,17 @@ export function BlogCard({ post, featured = false }: BlogCardProps) {
             </time>
           </div>
         </div>
-      </Link>
+      </a>
     );
   }
 
   return (
-    <Link
-      to="/blog/$slug"
-      params={{ slug: post.slug }}
+    <a
+      href={`/blog/${post.slug}`}
       className="group flex gap-4 py-5 border-b border-border last:border-0 hover:bg-muted/30 transition-colors px-2 -mx-2 rounded-lg"
       aria-label={`Read: ${post.title}`}
     >
-      {/* Colour swatch instead of image */}
+      {/* Colour swatch */}
       <div className="shrink-0 w-16 h-16 rounded-xl bg-gradient-to-br from-[#0C3E35]/10 to-[#C8707E]/10 flex items-center justify-center">
         <Tag className="h-6 w-6 text-[#0C3E35]/40" />
       </div>
@@ -89,6 +86,6 @@ export function BlogCard({ post, featured = false }: BlogCardProps) {
           </time>
         </div>
       </div>
-    </Link>
+    </a>
   );
 }

@@ -29,10 +29,16 @@ export const Route = createFileRoute("/about")({
       },
       { property: "og:title", content: "Meet Ustadha Arabiyat — ArabiyatLearn Academy" },
       { property: "og:description", content: "Patient, child-centered Arabic teaching for English-speaking children." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://arabiyatlearn.com/about" },
+      { property: "og:image", content: "https://arabiyatlearn.com/arabiyat-logo.png" },
+      { name: "robots", content: "index, follow" },
     ],
+    links: [{ rel: "canonical", href: "https://arabiyatlearn.com/about" }],
   }),
   component: About,
 });
+
 
 const credentials = [
   { icon: GraduationCap, title: "10+ Years Experience", body: "Specializing exclusively in teaching Arabic to diaspora and English-speaking children." },

@@ -29,10 +29,16 @@ export const Route = createFileRoute("/how-it-works")({
       },
       { property: "og:title", content: "How It Works — ArabiyatLearn" },
       { property: "og:description", content: "Step-by-step live Arabic learning designed specifically for diaspora children." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://arabiyatlearn.com/how-it-works" },
+      { property: "og:image", content: "https://arabiyatlearn.com/arabiyat-logo.png" },
+      { name: "robots", content: "index, follow" },
     ],
+    links: [{ rel: "canonical", href: "https://arabiyatlearn.com/how-it-works" }],
   }),
   component: HowItWorks,
 });
+
 
 const classPhases = [
   {

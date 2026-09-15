@@ -34,10 +34,16 @@ export const Route = createFileRoute("/contact")({
       },
       { property: "og:title", content: "Book a Free Demo Class & Contact — ArabiyatLearn" },
       { property: "og:description", content: "Free live Arabic demo session for English-speaking kids." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://arabiyatlearn.com/contact" },
+      { property: "og:image", content: "https://arabiyatlearn.com/arabiyat-logo.png" },
+      { name: "robots", content: "index, follow" },
     ],
+    links: [{ rel: "canonical", href: "https://arabiyatlearn.com/contact" }],
   }),
   component: Contact,
 });
+
 
 const demoSchema = z.object({
   parentName: z.string().trim().min(2, "Please enter parent / guardian name").max(100),

@@ -24,7 +24,12 @@ export const Route = createFileRoute("/faq")({
       },
       { property: "og:title", content: "Parent FAQs — ArabiyatLearn" },
       { property: "og:description", content: "Everything parents need to know about our live Arabic classes for kids." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://arabiyatlearn.com/faq" },
+      { property: "og:image", content: "https://arabiyatlearn.com/arabiyat-logo.png" },
+      { name: "robots", content: "index, follow" },
     ],
+    links: [{ rel: "canonical", href: "https://arabiyatlearn.com/faq" }],
   }),
   component: Faq,
 });

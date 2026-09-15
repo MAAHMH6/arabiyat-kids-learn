@@ -31,10 +31,16 @@ export const Route = createFileRoute("/courses/")({
       },
       { property: "og:title", content: "Arabic Courses & Live Classes for Kids — ArabiyatLearn" },
       { property: "og:description", content: "Interactive Arabic courses for English-speaking children." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://arabiyatlearn.com/courses/" },
+      { property: "og:image", content: "https://arabiyatlearn.com/arabiyat-logo.png" },
+      { name: "robots", content: "index, follow" },
     ],
+    links: [{ rel: "canonical", href: "https://arabiyatlearn.com/courses/" }],
   }),
   component: CoursesPage,
 });
+
 
 const inclusions = [
   {

@@ -18,10 +18,16 @@ export const Route = createFileRoute("/courses/$slug")({
       { name: "description", content: `Recorded Arabic lessons for children: ${params.slug.replace(/-/g, " ")}.` },
       { property: "og:title", content: `Arabic Course — Arabiyat Learn` },
       { property: "og:description", content: "Recorded Arabic courses for English-speaking children." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: `https://arabiyatlearn.com/courses/${params.slug}` },
+      { property: "og:image", content: "https://arabiyatlearn.com/arabiyat-logo.png" },
+      { name: "robots", content: "index, follow" },
     ],
+    links: [{ rel: "canonical", href: `https://arabiyatlearn.com/courses/${params.slug}` }],
   }),
   component: CourseDetail,
 });
+
 
 function CourseDetail() {
   const { slug } = Route.useParams();

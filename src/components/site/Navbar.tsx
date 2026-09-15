@@ -11,11 +11,13 @@ const links = [
   { to: "/", label: "Home" },
   { to: "/courses", label: "Courses" },
   { to: "/quran-learning", label: "Quran Learning" },
+  { to: "/blog", label: "Blog" },
   { to: "/about", label: "About" },
   { to: "/how-it-works", label: "How It Works" },
   { to: "/faq", label: "FAQ" },
   { to: "/contact", label: "Contact" },
 ] as const;
+
 
 export function Navbar() {
   const [open, setOpen] = useState(false);

@@ -42,10 +42,16 @@ export const Route = createFileRoute("/")({
       },
       { property: "og:title", content: "ArabiyatLearn — Arabic Made Simple for Kids" },
       { property: "og:description", content: "Interactive Arabic lessons made fun for children." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://arabiyatlearn.com/" },
+      { property: "og:image", content: "https://arabiyatlearn.com/arabiyat-logo.png" },
+      { name: "robots", content: "index, follow, max-image-preview:large, max-snippet:-1" },
     ],
+    links: [{ rel: "canonical", href: "https://arabiyatlearn.com/" }],
   }),
   component: Home,
 });
+
 
 const topicIcons = { letters: Type, numbers: Hash, book: BookOpen, speak: MessageCircle, sound: Volume2, kids: Users };
 

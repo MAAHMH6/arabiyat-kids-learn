@@ -10,4 +10,4 @@ Disallow: /dashboard
 Disallow: /dashboard/
 
 # Sitemap
-Sitemap: https://arabiyatlearn.com/sitemap.xml
+Sitemap: https://www.arabiyatlearn.com/sitemap.xml

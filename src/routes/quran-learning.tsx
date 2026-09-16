@@ -17,6 +17,7 @@ import {
   GraduationCap,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { Breadcrumb } from "@/components/site/Breadcrumb";
 import { Button } from "@/components/ui/button";
 import {
   Accordion,
@@ -140,6 +141,9 @@ const faqs = [
 function QuranLearning() {
   return (
     <SiteLayout>
+      {/* Breadcrumb: Home > Quran Learning */}
+      <Breadcrumb items={[{ label: "Quran Learning", href: "/quran-learning" }]} />
+
       {/* HERO */}
       <section className="gradient-hero border-b border-border/60">
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-14 md:py-20 lg:grid-cols-2 lg:gap-14">

@@ -64,6 +64,110 @@ function Home() {
 
   return (
     <SiteLayout>
+      {/* ===== HOMEPAGE JSON-LD SCHEMAS ===== */}
+
+      {/* 1. WebSite + SearchAction — powers Google Sitelinks Searchbox */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "ArabiyatLearn",
+            url: "https://www.arabiyatlearn.com/",
+            description: "Live 1-on-1 Arabic classes for English-speaking children. Learn Quran, Saudi Arabic, and foundational Arabic with certified female teachers.",
+            inLanguage: "en-GB",
+            potentialAction: {
+              "@type": "SearchAction",
+              target: {
+                "@type": "EntryPoint",
+                urlTemplate: "https://www.arabiyatlearn.com/courses?q={search_term_string}",
+              },
+              "query-input": "required name=search_term_string",
+            },
+          }),
+        }}
+      />
+
+      {/* 2. Organization — brand identity, logo, contact, social */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "@id": "https://www.arabiyatlearn.com/#organization",
+            name: "ArabiyatLearn",
+            alternateName: "Arabiyat Learn",
+            url: "https://www.arabiyatlearn.com/",
+            logo: {
+              "@type": "ImageObject",
+              url: "https://www.arabiyatlearn.com/arabiyat-logo.png",
+              width: 400,
+              height: 400,
+            },
+            contactPoint: {
+              "@type": "ContactPoint",
+              contactType: "customer service",
+              email: "hello@arabiyatlearn.com",
+              availableLanguage: ["English", "Arabic"],
+            },
+            sameAs: [
+              "https://www.instagram.com/arabiyatlearn",
+              "https://www.facebook.com/arabiyatlearn",
+              "https://www.youtube.com/@arabiyatlearn",
+            ],
+            foundingDate: "2024",
+            description: "Certified online Arabic academy offering live 1-on-1 Arabic and Quran classes for English-speaking children aged 4–15.",
+          }),
+        }}
+      />
+
+      {/* 3. SiteNavigationElement — explicitly tells Google the top nav for Sitelinks */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            name: "ArabiyatLearn Site Navigation",
+            itemListElement: [
+              { "@type": "SiteLinksSearchBox", url: "https://www.arabiyatlearn.com/" },
+              {
+                "@type": "ListItem", position: 1,
+                name: "Arabic Courses for Kids",
+                url: "https://www.arabiyatlearn.com/courses",
+              },
+              {
+                "@type": "ListItem", position: 2,
+                name: "Quran Learning",
+                url: "https://www.arabiyatlearn.com/quran-learning",
+              },
+              {
+                "@type": "ListItem", position: 3,
+                name: "How It Works",
+                url: "https://www.arabiyatlearn.com/how-it-works",
+              },
+              {
+                "@type": "ListItem", position: 4,
+                name: "Arabic Learning Blog",
+                url: "https://www.arabiyatlearn.com/blog/",
+              },
+              {
+                "@type": "ListItem", position: 5,
+                name: "Parent FAQ",
+                url: "https://www.arabiyatlearn.com/faq",
+              },
+              {
+                "@type": "ListItem", position: 6,
+                name: "Book Free Demo Class",
+                url: "https://www.arabiyatlearn.com/contact",
+              },
+            ],
+          }),
+        }}
+      />
+
       {/* Hero Section */}
       <section className="gradient-hero overflow-hidden">
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-14 lg:grid-cols-2 lg:py-20">

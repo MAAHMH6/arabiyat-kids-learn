@@ -18,6 +18,7 @@ import {
 import { z } from "zod";
 import { toast } from "sonner";
 import { SiteLayout, PageHeader } from "@/components/site/SiteLayout";
+import { Breadcrumb } from "@/components/site/Breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -130,6 +131,9 @@ function Contact() {
 
   return (
     <SiteLayout>
+      {/* Breadcrumb: Home > Contact */}
+      <Breadcrumb items={[{ label: "Contact", href: "/contact" }]} />
+
       <PageHeader
         eyebrow="Schedule & Inquiries"
         title="Book a Free Trial or Contact Us"

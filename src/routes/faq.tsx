@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout, PageHeader } from "@/components/site/SiteLayout";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import { Breadcrumb } from "@/components/site/Breadcrumb";
 import { 
   MessageCircle, 
   HelpCircle, 
@@ -139,12 +140,34 @@ function Faq() {
     ? faqCategories 
     : faqCategories.filter(c => c.id === activeCategory);
 
+  // Flatten all FAQ Q&A pairs for FAQPage schema
+  const allFaqs = faqCategories.flatMap((cat) => cat.items);
+
+  const faqPageLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: allFaqs.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.a,
+      },
+    })),
+  };
+
   return (
     <SiteLayout>
-      <PageHeader 
-        eyebrow="Help & FAQ" 
-        title="Everything Parents Need to Know" 
-        subtitle="Clear answers about our live Arabic classes, teaching methods, teacher vetting, and scheduling." 
+      {/* FAQPage rich result schema */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageLd) }} />
+
+      {/* Breadcrumb: Home > FAQ */}
+      <Breadcrumb items={[{ label: "FAQ", href: "/faq" }]} />
+
+      <PageHeader
+        eyebrow="Help & FAQ"
+        title="Everything Parents Need to Know"
+        subtitle="Clear answers about our live Arabic classes, teaching methods, teacher vetting, and scheduling."
       />
 
       <section className="mx-auto max-w-5xl px-4 py-16">

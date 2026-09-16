@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { courseFilters } from "@/lib/site-data";
 import { fetchCourses, fetchLessonCounts, thumbFor } from "@/lib/db";
 import { cn } from "@/lib/utils";
+import { Breadcrumb } from "@/components/site/Breadcrumb";
 
 export const Route = createFileRoute("/courses/")({
   head: () => ({
@@ -103,8 +104,37 @@ function CoursesPage() {
 
   const visible = (data ?? []).filter((c) => filter === "All" || c.category === filter || c.level === filter);
 
+  const courses = data ?? [];
+
+  // CollectionPage JSON-LD
+  const collectionLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Arabic Courses & Live Classes for Kids — ArabiyatLearn",
+    description: "Browse Arabic and Quran courses for English-speaking children aged 4–15.",
+    url: "https://www.arabiyatlearn.com/courses",
+    provider: {
+      "@type": "Organization",
+      name: "ArabiyatLearn",
+      url: "https://www.arabiyatlearn.com",
+    },
+    hasPart: courses.map((c) => ({
+      "@type": "Course",
+      name: c.title,
+      description: c.description,
+      url: `https://www.arabiyatlearn.com/courses/${c.slug}`,
+      provider: { "@type": "Organization", name: "ArabiyatLearn" },
+    })),
+  };
+
   return (
     <SiteLayout>
+      {/* CollectionPage schema */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionLd) }} />
+
+      {/* Visible breadcrumb: Home > Courses */}
+      <Breadcrumb items={[{ label: "Courses", href: "/courses" }]} />
+
       <PageHeader
         eyebrow="Course Catalog"
         title="Arabic Courses & Live Classes"

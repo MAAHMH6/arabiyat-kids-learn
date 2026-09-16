@@ -1,5 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { SiteLayout, PageHeader, SectionHeading } from "@/components/site/SiteLayout";
+import { Breadcrumb } from "@/components/site/Breadcrumb";
 import { Button } from "@/components/ui/button";
 import { howItWorks, parentReasons } from "@/lib/site-data";
 import { 
@@ -103,6 +104,9 @@ const learningCycle = [
 function HowItWorks() {
   return (
     <SiteLayout>
+      {/* Breadcrumb: Home > How It Works */}
+      <Breadcrumb items={[{ label: "How It Works", href: "/how-it-works" }]} />
+
       <PageHeader
         eyebrow="How It Works"
         title="Start Learning in Four Simple Steps"

@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, Clock, User2, Tag, Share2, Calendar } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
+import { Breadcrumb } from "@/components/site/Breadcrumb";
 import { getBlogPost, getRecentPosts, blogPosts } from "@/lib/blog-data";
 
 const SITE_URL = "https://www.arabiyatlearn.com";
@@ -205,6 +206,14 @@ function BlogPostPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
+      {/* Breadcrumb: Home > Blog > [Post Title] */}
+      <Breadcrumb
+        items={[
+          { label: "Blog", href: "/blog/" },
+          { label: post.title },
+        ]}
       />
 
       {/* Article Header */}

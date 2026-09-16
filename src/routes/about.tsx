@@ -15,6 +15,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { SiteLayout, PageHeader, SectionHeading } from "@/components/site/SiteLayout";
+import { Breadcrumb } from "@/components/site/Breadcrumb";
 import { Button } from "@/components/ui/button";
 import teacher from "@/assets/teacher-portrait.jpg";
 
@@ -133,6 +134,9 @@ const parentFeedback = [
 function About() {
   return (
     <SiteLayout>
+      {/* Breadcrumb: Home > About */}
+      <Breadcrumb items={[{ label: "About", href: "/about" }]} />
+
       <PageHeader
         eyebrow="Meet the Academy"
         title="Meet Ustadha Arabiyat"

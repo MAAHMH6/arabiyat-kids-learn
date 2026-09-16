@@ -5,6 +5,7 @@ import { SiteLayout, PageHeader, SectionHeading } from "@/components/site/SiteLa
 import { BlogCard } from "@/components/site/BlogCard";
 import { Button } from "@/components/ui/button";
 import { blogPosts, blogCategories, getPostsByCategory, type BlogCategory } from "@/lib/blog-data";
+import { Breadcrumb } from "@/components/site/Breadcrumb";
 
 const SITE_URL = "https://www.arabiyatlearn.com";
 
@@ -83,6 +84,9 @@ function BlogIndexPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+
+      {/* Breadcrumb: Home > Blog */}
+      <Breadcrumb items={[{ label: "Blog", href: "/blog/" }]} />
 
       <PageHeader
         eyebrow="Arabic Learning Blog"

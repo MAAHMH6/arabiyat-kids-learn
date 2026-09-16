@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Check, Clock, Globe, Lock, PlayCircle, Star, BadgeCheck } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
+import { Breadcrumb } from "@/components/site/Breadcrumb";
 import {
   Accordion,
   AccordionContent,
@@ -59,8 +60,53 @@ function CourseDetail() {
 
   const lessonCount = course.modules.reduce((n, m) => n + m.lessons.length, 0);
 
+  // Course JSON-LD schema
+  const courseLd = {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    name: course.title,
+    description: course.description,
+    url: `https://www.arabiyatlearn.com/courses/${course.slug}`,
+    image: "https://www.arabiyatlearn.com/arabiyat-logo.png",
+    provider: {
+      "@type": "Organization",
+      name: "ArabiyatLearn",
+      sameAs: "https://www.arabiyatlearn.com",
+    },
+    courseMode: "online",
+    educationalLevel: course.level,
+    inLanguage: "en-GB",
+    offers: {
+      "@type": "Offer",
+      price: course.price,
+      priceCurrency: "GBP",
+      url: `https://www.arabiyatlearn.com/courses/${course.slug}`,
+      availability: "https://schema.org/InStock",
+    },
+    hasCourseInstance: {
+      "@type": "CourseInstance",
+      courseMode: "online",
+      instructor: {
+        "@type": "Person",
+        name: course.teacher ?? "Ustadha ArabiyatLearn",
+        jobTitle: "Certified Arabic Teacher",
+      },
+    },
+  };
+
   return (
     <SiteLayout>
+      {/* Course schema */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(courseLd) }} />
+
+      {/* Breadcrumb: Home > Courses > [Course Title] */}
+      <Breadcrumb
+        items={[
+          { label: "Courses", href: "/courses" },
+          { label: course.title },
+        ]}
+      />
+
       <section className="gradient-hero border-b border-border/60">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 lg:grid-cols-[1.2fr_1fr]">
           <div>

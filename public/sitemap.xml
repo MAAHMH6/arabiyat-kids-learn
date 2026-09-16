@@ -75,61 +75,19 @@
   <!-- ========== COURSE PAGES ========== -->
   <url>
     <loc>https://www.arabiyatlearn.com/courses/arabic-alphabet-phonics</loc>
-    <lastmod>2026-09-15</lastmod>
+    <lastmod>2026-09-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.arabiyatlearn.com/courses/conversational-arabic-kids</loc>
-    <lastmod>2026-09-15</lastmod>
+    <loc>https://www.arabiyatlearn.com/courses/saudi-spoken-arabic</loc>
+    <lastmod>2026-09-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.arabiyatlearn.com/courses/quranic-arabic-basics</loc>
-    <lastmod>2026-09-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.arabiyatlearn.com/courses/noorani-qaida-complete</loc>
-    <lastmod>2026-09-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.arabiyatlearn.com/courses/tajweed-rules-beginners</loc>
-    <lastmod>2026-09-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.arabiyatlearn.com/courses/quran-memorisation-juz-amma</loc>
-    <lastmod>2026-09-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.arabiyatlearn.com/courses/daily-duas-islamic-supplications</loc>
-    <lastmod>2026-09-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.arabiyatlearn.com/courses/quran-reading-fluency-advanced</loc>
-    <lastmod>2026-09-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.arabiyatlearn.com/courses/arabic-reading-writing-kids</loc>
-    <lastmod>2026-09-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.arabiyatlearn.com/courses/islamic-studies-children</loc>
-    <lastmod>2026-09-15</lastmod>
+    <loc>https://www.arabiyatlearn.com/courses/quran-reading-hifz-kids</loc>
+    <lastmod>2026-09-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
